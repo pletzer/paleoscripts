@@ -3,19 +3,27 @@
 """Tests for `paleoscripts` package."""
 
 
-import unittest
+import pytest
+import paleoscripts
+import xarray as xr
+import numpy as np
 
-from paleoscripts import paleoscripts
+def test_apply_cyclic_padding():
 
+    # number of cells
+    nlat, nlon = 3, 4
+    nlat1, nlon1 = nlat + 1, nlon + 1
 
-class TestPaleoscripts(unittest.TestCase):
-    """Tests for `paleoscripts` package."""
+    # create a data array of lat-lon
+    lat = np.linspace(-90., 90, nlat1)
 
-    def setUp(self):
-        """Set up test fixtures, if any."""
+    dlon = 360/nlon
+    lon = np.linspace(0., 360 - dlon, nlon)
 
-    def tearDown(self):
-        """Tear down test fixtures, if any."""
+    data = np.arange(0, nlat1 * nlon).reshape((nlat1, nlon))
 
-    def test_000_something(self):
-        """Test something."""
+    da = xr.DataArray(data, coords=[lat, lon], dims=['latitude', 'longitude'], name='temperature')
+
+    x_da = paleoscripts.apply_cyclic_padding(da)
+
+    assert np.all(x_da[..., 0] == x_da[..., -1])
