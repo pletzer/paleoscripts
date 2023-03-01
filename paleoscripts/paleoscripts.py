@@ -70,6 +70,7 @@ def create_contourf_plot(data_array: xr.DataArray,\
                          figsize: tuple=(12, 8)) -> None:
     """
     Create contour plot
+    :param data_array: instance of xarray.DataArray
     :param title: title
     :param levels: contour levels
     :param xlim: min/max longitude limits
@@ -145,4 +146,30 @@ def create_contourf_plot(data_array: xr.DataArray,\
     ax.set(ylabel=None)
 
     plt.title(title)
+
+
+def find_points_where_field_is_max(data_array: xr.DataArray,\
+                                   low_point: tuple=(0., -90.),\
+                                   high_point: tuple=(360., 90.)):
+    """
+    Find the points where the field is max
+    :param data_array: instance of xarray.DataArray
+    :param low_point: min (longitude, latitude) point of the box
+    :param high_point: max (longitude, latitude) point of the box
+    :returns a numpy array of [(lon, lat), ...] points
+    """
+    da = data_array.sel(longitude = slice(low_point[0], high_point[0]),\
+         latitude = slice(low_point[0], high_point[0]))
+    xy_points = []
+    lon = da.coords['longitude']
+    lat = da.coords['latitude']
+    # assume longitude to be the last index
+    for i in range(da.shape[-1]):
+        # assume 2d array
+        j = np.argmax(da.values[:, i])
+        xy_points.append((lon[i], lat[j]))
+    return np.array(xy_points)
+
+
+
 
