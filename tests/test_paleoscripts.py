@@ -21,7 +21,7 @@ def create_latlon_data(nlat, nlon):
     lon = np.linspace(0., 360 - dlon, nlon)
 
     # create some data
-    data = np.arange(0, nlat1 * nlon).reshape((nlat1, nlon))
+    data = np.arange(0, nlat1 * nlon).reshape((nlat1, nlon)) / (nlat1 * nlon)
     da = xr.DataArray(data, coords=[lat, lon], dims=['latitude', 'longitude'], name='temperature')
 
     return da
@@ -40,7 +40,9 @@ def test_create_contourf_plot():
     nlat, nlon = 10, 20
     da = create_latlon_data(nlat, nlon)
     x_da = paleoscripts.apply_cyclic_padding(da)
-    p = paleoscripts.create_contourf_plot(da, title='test', units='m/s')
+    p = paleoscripts.create_contourf_plot(da, title='toto',\
+        levels=np.linspace(0., 1., 11))
     plt.show()
+    plt.savefig('toto.png')
 
 

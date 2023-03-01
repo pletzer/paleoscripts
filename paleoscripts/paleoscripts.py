@@ -61,7 +61,18 @@ def apply_cyclic_padding(data_array: xr.DataArray, coord_name: str='longitude', 
     return x_data_array
 
 
-def create_contourf_plot(data_array, title='', units='', figsize=(12, 8)):
+def create_contourf_plot(data_array: xr.DataArray,\
+                         title: str='Temperature',\
+                         levels: np.array=np.linspace(200,320,60),
+                         cmap: str='bwr',\
+                         figsize: tuple=(12, 8)) -> None:
+    """
+    Create contour plot
+    :param title: title
+    :param levels: contour levels (list or array)
+    :param cmap: colormap name
+    :param figsize: figure size
+    """
 
     fig = plt.figure(figsize=figsize)
     ax = plt.axes(projection=ccrs.PlateCarree(central_longitude= -60))
@@ -105,12 +116,16 @@ def create_contourf_plot(data_array, title='', units='', figsize=(12, 8)):
     vmo_plot = data_array.plot.contourf(
                                  ax=ax,
                                  transform=ccrs.PlateCarree(),
-                                 levels=np.linspace(200,320,60),
-                                 cmap="bwr",
+                                 levels=levels,
+                                 cmap=cmap,
                                  add_colorbar=False)  
 
     # Add and customize colorbar
-    cbar_ticks = np.arange(200, 320, 20)
+    units = ''
+    if hasattr(data_array, 'units'):
+        units = data_array.units
+    cbar_ticks = levels # np.linspace(min(levels), max(levels), 20)
+
     plt.colorbar(ax=ax,
              mappable=vmo_plot,
              extendrect=False,
@@ -126,6 +141,4 @@ def create_contourf_plot(data_array, title='', units='', figsize=(12, 8)):
     ax.set(ylabel=None)
 
     plt.title(title)
-
-    return vmo_plot
 
