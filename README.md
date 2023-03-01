@@ -74,6 +74,7 @@ python -c "import paleoscripts"
 
 More extensive tests can be run inside the `paleoscripts` directory by typing
 ```
+pip install pytest
 pytest
 ```
 
