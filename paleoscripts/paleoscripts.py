@@ -150,7 +150,7 @@ def create_contourf_plot(data_array: xr.DataArray,\
 
 def find_points_where_field_is_max(data_array: xr.DataArray,\
                                    low_point: tuple=(0., -90.),\
-                                   high_point: tuple=(360., 90.)):
+                                   high_point: tuple=(360., 90.)) -> np.ndarray:
     """
     Find the points where the field is max
     :param data_array: instance of xarray.DataArray
@@ -170,6 +170,7 @@ def find_points_where_field_is_max(data_array: xr.DataArray,\
         data = da.sel(longitude=lo).data
         j = np.argmax(data)
         xy_points.append( (lo, lat[j],) )
+    
     return np.array(xy_points)
 
 
