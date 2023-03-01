@@ -11,30 +11,40 @@ git clone https://github.com/pletzer/paleoscripts
  
 ## How to install `paleoscripts` within a Jupyter kernel running on NeSI
 
-### Identify the path to the conda environment
+### Load your environment in the Terminal
 
+Let's assume your environment is `pygeo`. You should have a file,
 ```
-grep "conda activate" ~/.local/share/jupyter/kernels/PYTHON_KERNEL-kernel/wrapper.sh
+~/.local/share/jupyter/kernels/pygeo-kernel/wrapper.sh
 ```
-where PYTHON_KERNEL is the name of the python kernel (e.g. pygeo). This command will return something like
-```
-conda activate /nesi/project/PROJECT/USER/envs/PYTHON_KERNEL
-```
-where PROJECT is your project number and USER your user name. Copy the third string.
 
-### Activate the environment
-
+This file contains the list of commands needed to load your environment. In my case, the command 
 ```
+cat ~/.local/share/jupyter/kernels/pygeo-kernel/wrapper.sh
+```
+returns
+```
+#!/usr/bin/env bash
+
+# load required modules here
 module purge
-module load Miniconda3/4.8.2
-conda deactivate
-conda activate /nesi/project/PROJECT/USER/envs/PYTHON_KERNEL
+module load Miniconda3
+
+export PYTHONNOUSERSITE=True
+unset I_MPI_PMI_LIBRARY
+
+# activate conda environment
+source $(conda info --base)/etc/profile.d/conda.sh 
+conda deactivate  # workaround for https://github.com/conda/conda/issues/9392
+conda activate /nesi/project/nesi99999/pletzera/envs/pygeo
+
+# run the kernel
+exec python $@
 ```
-(Note: your Miniconda version might be different, check the version in `~/.local/share/jupyter/kernels/PYTHON_KERNEL-kernel/wrapper.sh`.)
 
-Then proceed to the next section.
+Copy-paste the commands from `module purge` to `conda activate ...` in your Terminal. You should now have your environment activated.
 
-## Install the package
+### Install the package
 
 Navigate to the top directory `paleoscripts` and type
 ```
