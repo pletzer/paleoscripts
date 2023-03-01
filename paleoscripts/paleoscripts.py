@@ -64,12 +64,16 @@ def apply_cyclic_padding(data_array: xr.DataArray, coord_name: str='longitude', 
 def create_contourf_plot(data_array: xr.DataArray,\
                          title: str='Temperature',\
                          levels: np.array=np.linspace(200,320,60),
+                         xlim: tuple=(-90, 120),
+                         ylim: tuple=(0, 90),
                          cmap: str='bwr',\
                          figsize: tuple=(12, 8)) -> None:
     """
     Create contour plot
     :param title: title
-    :param levels: contour levels (list or array)
+    :param levels: contour levels
+    :param xlim: min/max longitude limits
+    :param ylim: min/max latitude limits
     :param cmap: colormap name
     :param figsize: figure size
     """
@@ -94,10 +98,10 @@ def create_contourf_plot(data_array: xr.DataArray,\
 
     # Use geocat-viz utility function to customize tick marks
     gv.set_axes_limits_and_ticks(ax,
-                                 xlim=(-90, 120),
-                                 ylim=(0, 90),
-                                 xticks=(-90, -60, -30, 0, 30, 60, 90, 120),
-                                 yticks=(0, 30, 60, 90))
+                                 xlim=xlim,
+                                 ylim=ylim,
+                                 xticks=np.linspace(xlim[0], xlim[1], 7),
+                                 yticks=np.linspace(ylim[0], ylim[1], 5))
 
     # Remove degree symbol from tick labels
     ax.yaxis.set_major_formatter(LatitudeFormatter(degree_symbol=''))

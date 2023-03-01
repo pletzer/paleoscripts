@@ -41,8 +41,9 @@ def test_create_contourf_plot():
     da = create_latlon_data(nlat, nlon)
     x_da = paleoscripts.apply_cyclic_padding(da)
     p = paleoscripts.create_contourf_plot(da, title='toto',\
-        levels=np.linspace(0., 1., 11))
-    plt.show()
+        levels=np.linspace(0., 1., 11),\
+        xlim=(-180, 180), ylim=(-90,90))
     plt.savefig('toto.png')
+    plt.show()
 
 
