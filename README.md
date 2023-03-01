@@ -2,16 +2,6 @@
 
 A python module that contains a collection of postprocessing scripts
 
-## Prerequisites
-
- - python
- - numpy
- - pytest
- - xarray
- - matplotlib
- - geocat-viz
- - cartopy
-
 ## How to access the source code
 
 In a terminal, type
@@ -30,8 +20,7 @@ where PYTHON_KERNEL is the name of the python kernel (e.g. pygeo). This command 
 ```
 conda activate /nesi/project/PROJECT/USER/envs/PYTHON_KERNEL
 ```
-where PROJECT is your project number and USER your user name. Take note of the third string.
-
+where PROJECT is your project number and USER your user name. Copy the third string.
 
 ### Activate the environment
 
@@ -41,6 +30,7 @@ module load Miniconda3/4.8.2
 conda deactivate
 conda activate /nesi/project/PROJECT/USER/envs/PYTHON_KERNEL
 ```
+(Note: your Miniconda version might be different, check the version in `~/.local/share/jupyter/kernels/PYTHON_KERNEL-kernel/wrapper.sh`.)
 
 Then proceed to the next section.
 
@@ -58,7 +48,7 @@ Make sure you have the latest version installed. In the top `paleoscripts` direc
 git pull origin main
 ```
 
-Then, activate if need be the `conda` environment following the steps detailed [above](#activate-the-environment) and [reinstall](#install-the-package) the package
+Then, activate, if need be, the `conda` environment following the steps detailed [above](#activate-the-environment) and [reinstall](#install-the-package) the package
 
 ```
 pip install .
