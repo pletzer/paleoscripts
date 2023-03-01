@@ -48,7 +48,7 @@ Make sure you have the latest version installed. In the top `paleoscripts` direc
 git pull origin main
 ```
 
-Then, activate if need be the `conda` environment following the steps detailed [above](#activate-the-environment) and [reinstall](#install-the-package) the package
+Then, activate, if need be, the `conda` environment following the steps detailed [above](#activate-the-environment) and [reinstall](#install-the-package) the package
 
 ```
 pip install .
