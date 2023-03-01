@@ -50,7 +50,6 @@ module purge
 module load Miniconda3/4.8.2
 conda deactivate
 conda activate /nesi/project/PROJECT/USER/envs/PYTHON_KERNEL
-
 ```
 
 ### Install the package
@@ -62,7 +61,13 @@ pip install .
 
 ## How to test the package
 
-In the top `paleoscripts` directory, type
+Check that you can import the package
+
+```
+import paleoscripts
+```
+
+More extensive tests can be run inside the `paleoscripts` directory by typing
 ```
 pytest
 ```
