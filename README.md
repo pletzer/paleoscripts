@@ -69,7 +69,7 @@ pip install .
 Check that you can import the package
 
 ```
-import paleoscripts
+python -e "import paleoscripts"
 ```
 
 More extensive tests can be run inside the `paleoscripts` directory by typing
