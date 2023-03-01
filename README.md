@@ -19,16 +19,6 @@ In a terminal, type
 git clone https://github.com/pletzer/paleoscripts
 ```
  
-## How to install the package
-
-See below if you need to install this package within a Jupyter kernel running on NeSI.
-
-In the top `paleoscripts` directory, type
-
-```
-pip install .
-```
-
 ## How to install `paleoscripts` within a Jupyter kernel running on NeSI
 
 ### Identify the path to the conda environment
@@ -52,9 +42,24 @@ conda deactivate
 conda activate /nesi/project/PROJECT/USER/envs/PYTHON_KERNEL
 ```
 
-### Install the package
+Then proceed to the next section.
+
+## Install the package
 
 Navigate to the top directory `paleoscripts` and type
+```
+pip install .
+```
+
+## Updating the package
+
+Make sure you have the latest version installed. In the top `paleoscripts` directory type,
+```
+git pull origin main
+```
+
+Then, activate if need be the `conda` environment following the steps detailed [above](#activate-the-environment) and [reinstall](#install-the-package) the package
+
 ```
 pip install .
 ```
