@@ -48,20 +48,34 @@ def test_create_contourf_plot():
 
 
 def test_find_points_where_field_is_max():
+
     nlat, nlon = 10, 20
     da = create_latlon_data(nlat, nlon)
-    lon_min, lon_max = -30., None
+    lon_min, lon_max = -30., None # None mean max value, whatever it is
     lat_min, lat_max = -40., 50.
+
     xy_points = paleoscripts.find_points_where_field_is_max(da,\
         low_point=(lon_min, lat_min),\
         high_point=(lon_max, lat_max))
 
-    # check
+    # check that the points lie within the box
+    for lo, la in xy_points:
+        assert lon_min <= lo
+        if lon_max:
+            assert lo <= lon_max
+        assert lat_min <= la
+        if lat_max:
+            assert la <= lat_max
+
+    # subset the data
     da2 = da.sel(longitude=slice(lon_min, lon_max), latitude=slice(lat_min, lat_max))
+
+    # check that we found the max value along lats for each lon
     for i in range(xy_points.shape[0]):
         lo, la = xy_points[i, :]
         val = da.sel(longitude=lo, latitude=la)
-        assert val >= da.sel(longitude=lo).max()
+        da3 = da2.sel(longitude=lo)
+        assert np.all(da3.data <= val.data)
 
 
 

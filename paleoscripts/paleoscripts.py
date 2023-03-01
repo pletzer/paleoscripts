@@ -158,16 +158,18 @@ def find_points_where_field_is_max(data_array: xr.DataArray,\
     :param high_point: max (longitude, latitude) point of the box
     :returns a numpy array of [(lon, lat), ...] points
     """
-    da = data_array.sel(longitude = slice(low_point[0], high_point[0]),\
-         latitude = slice(low_point[0], high_point[0]))
+    da = data_array.sel(\
+         longitude = slice(low_point[0], high_point[0]),\
+         latitude = slice(low_point[1], high_point[1]) \
+         )
+    lon = da.coords['longitude'].data
+    lat = da.coords['latitude'].data
+
     xy_points = []
-    lon = da.coords['longitude']
-    lat = da.coords['latitude']
-    # assume longitude to be the last index
-    for i in range(da.shape[-1]):
-        # assume 2d array
-        j = np.argmax(da.values[:, i])
-        xy_points.append((lon[i], lat[j]))
+    for lo in lon:
+        data = da.sel(longitude=lo).data
+        j = np.argmax(data)
+        xy_points.append( (lo, lat[j],) )
     return np.array(xy_points)
 
 
