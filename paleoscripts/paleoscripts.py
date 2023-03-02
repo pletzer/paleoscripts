@@ -129,7 +129,8 @@ def create_contourf_plot(data_array: xr.DataArray,\
     units = ''
     if hasattr(data_array, 'units'):
         units = data_array.units
-    cbar_ticks = levels # np.linspace(min(levels), max(levels), 20)
+
+    cbar_ticks = np.linspace(min(levels), max(levels), 20)
 
     plt.colorbar(ax=ax,
              mappable=vmo_plot,
