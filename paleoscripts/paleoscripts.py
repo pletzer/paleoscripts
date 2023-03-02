@@ -177,5 +177,22 @@ def find_points_where_field_is_max(data_array: xr.DataArray,\
     return np.array(xy_points)
 
 
+def extract_season(data_array: xr.DataArray, season: str):
+    """
+    Return the data for a season
+    :param data_array: instance of xarray.DataArray
+    :param season: either 'djf', 'mam', 'jja' or 'son'
+    """
+    season2months = {'djf': np.array((12, 1, 2)),
+                     'mam': slice(3, 6),
+                     'jja': slice(6, 9),
+                     'son': slice(9, 12)}
+    if not season in season2months:
+        raise RuntimeError(f"ERROR: {season} must be 'djf', 'mam', 'jja' or 'son'")
+    da = data_array.sel(month=season2months[season])
+    return da
+
+
+
 
 

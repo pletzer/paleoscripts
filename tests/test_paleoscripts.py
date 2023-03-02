@@ -10,6 +10,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def create_month_latlon_data(nlat, nlon):
+
+    nlat1, nlon1 = nlat + 1, nlon + 1
+
+    # create month coordinate
+    mon = np.arange(1, 13)
+
+    # create lat coordinate
+    lat = np.linspace(-90., 90, nlat1)
+
+    # create a lon coordinate, the last value (ie 360 deg) is missing
+    dlon = 360/nlon
+    lon = np.linspace(0., 360, nlon1)
+
+
+    # create some data
+    data = np.random.rand(12, nlat1, nlon1)
+    da = xr.DataArray(data, coords=[mon, lat, lon], dims=['month', 'latitude', 'longitude'], name='noise')
+
+    return da    
+
+
+
 def create_latlon_data(nlat, nlon):
     nlat1, nlon1 = nlat + 1, nlon + 1
 
@@ -77,6 +100,18 @@ def test_find_points_where_field_is_max():
         val = da.sel(longitude=lo, latitude=la)
         da3 = da2.sel(longitude=lo)
         assert np.all(da3.data <= val.data)
+
+
+def test_extract_season():
+
+    da = create_month_latlon_data(nlat=4, nlon=8)
+    da_djf = paleoscripts.extract_season(da, season='djf')
+    assert da_djf.shape[0] == 3
+    assert np.all(da_djf[0,...] == da[11, ...])
+    assert np.all(da_djf[1,...] == da[0, ...])
+    assert np.all(da_djf[2,...] == da[1, ...])
+    
+
 
 
 
