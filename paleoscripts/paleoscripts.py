@@ -82,7 +82,7 @@ def create_contourf_plot(data_array: xr.DataArray,\
     """
 
     fig = plt.figure(figsize=figsize)
-    ax = plt.axes(projection=ccrs.PlateCarree(central_longitude= -60))
+    ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=central_longitude))
 
     # add land feature
     ax.add_feature(cfeature.LAND, facecolor="lightgrey", zorder=1)
