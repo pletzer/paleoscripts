@@ -51,12 +51,13 @@ def test_find_points_where_field_is_max():
 
     nlat, nlon = 10, 20
     da = create_latlon_data(nlat, nlon)
-    lon_min, lon_max = -30., None # None mean max value, whatever it is
+    lon_min, lon_max = -30., None # None means max value, whatever it is
     lat_min, lat_max = -40., 50.
+    xlim = (lon_min, lon_max)
+    ylim = (lat_min, lat_max)
 
     xy_points = paleoscripts.find_points_where_field_is_max(da,\
-        low_point=(lon_min, lat_min),\
-        high_point=(lon_max, lat_max))
+        xlim=xlim, ylim=ylim)
 
     # check that the points lie within the box
     for lo, la in xy_points:
