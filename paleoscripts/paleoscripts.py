@@ -82,7 +82,8 @@ def create_contourf_plot(data_array: xr.DataArray,\
     """
 
     fig = plt.figure(figsize=figsize)
-    ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=central_longitude))
+    proj = ccrs.PlateCarree(central_longitude=central_longitude)
+    ax = plt.axes(projection=proj)
 
     # add land feature
     ax.add_feature(cfeature.LAND, facecolor="lightgrey", zorder=1)
@@ -122,7 +123,7 @@ def create_contourf_plot(data_array: xr.DataArray,\
 
     vmo_plot = data_array.plot.contourf(
                                  ax=ax,
-                                 transform=ccrs.PlateCarree(),
+                                 transform=proj,
                                  levels=levels,
                                  cmap=cmap,
                                  add_colorbar=False)  
