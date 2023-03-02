@@ -48,8 +48,9 @@ Copy-paste the commands from `module purge` to `conda activate ...` in your Term
 
 Navigate to the top directory `paleoscripts` and type
 ```
-pip install .
+pip install -e .
 ```
+Option `-e` means editable, that any code changes will be picked without the need to rerun this command.
 
 ## Updating the package
 
@@ -57,12 +58,7 @@ Make sure you have the latest version installed. In the top `paleoscripts` direc
 ```
 git pull origin main
 ```
-
-Then, activate, if need be, the `conda` environment following the steps detailed [above](#activate-the-environment) and [reinstall](#install-the-package) the package
-
-```
-pip install .
-```
+(There is no need to re-install as we used `pip install -e .`.)
 
 ## How to test the package
 
@@ -74,7 +70,7 @@ python -c "import paleoscripts"
 
 More extensive tests can be run inside the `paleoscripts` directory by typing
 ```
-pip install pytest
+pip install pytest # run this only once
 pytest
 ```
 
