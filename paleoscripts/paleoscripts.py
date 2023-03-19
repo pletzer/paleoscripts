@@ -185,9 +185,9 @@ def extract_season(data_array: xr.DataArray, season: str):
     :param season: either 'djf', 'mam', 'jja' or 'son'
     """
     season2months = {'djf': np.array((12, 1, 2)),
-                     'mam': slice(3, 6),
-                     'jja': slice(6, 9),
-                     'son': slice(9, 12)}
+                     'mam': np.array((3, 4, 5)),
+                     'jja': np.array((6, 7, 8)),
+                     'son': np.array((9, 10, 11))}
     if not season in season2months:
         raise RuntimeError(f"ERROR: {season} must be 'djf', 'mam', 'jja' or 'son'")
     da = data_array.sel(month=season2months[season])
