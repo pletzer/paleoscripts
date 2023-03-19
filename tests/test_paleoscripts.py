@@ -110,6 +110,12 @@ def test_extract_season():
     assert np.all(da_djf[0,...] == da[11, ...])
     assert np.all(da_djf[1,...] == da[0, ...])
     assert np.all(da_djf[2,...] == da[1, ...])
+
+    for season in 'mam', 'jja', 'son':
+        da_season = paleoscripts.extract_season(da, season=season)
+        assert da_season.shape[0] == 3
+
+
     
 
 
