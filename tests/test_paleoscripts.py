@@ -77,11 +77,12 @@ def test_find_points_where_field_is_extreme():
     da = create_latlon_data(nlat, nlon)
     lon_min, lon_max = -30., None # None means max value, whatever it is
     lat_min, lat_max = -40., 50.
-    xlim = (lon_min, lon_max)
-    ylim = (lat_min, lat_max)
 
-    xy_points = paleoscripts.find_points_where_field_is_extreme(da,\
-        xlim=xlim, ylim=ylim)
+    # subset the data
+    da_box = da.sel(longitude=slice(lon_min, lon_max),
+                 latitude=slice(lat_min, lat_max))
+
+    xy_points = paleoscripts.find_points_where_field_is_extreme(da_box)
 
     # check that the points lie within the box
     for lo, la in xy_points:
@@ -92,15 +93,11 @@ def test_find_points_where_field_is_extreme():
         if lat_max:
             assert la <= lat_max
 
-    # subset the data
-    da2 = da.sel(longitude=slice(lon_min, lon_max),
-                 latitude=slice(lat_min, lat_max))
-
     # check that we found the max value along lats for each lon
     for i in range(xy_points.shape[0]):
         lo, la = xy_points[i, :]
         val = da.sel(longitude=lo, latitude=la)
-        da3 = da2.sel(longitude=lo)
+        da3 = da_box.sel(longitude=lo)
         assert np.all(da3.data <= val.data)
 
 

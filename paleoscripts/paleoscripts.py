@@ -188,30 +188,22 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
 
 def find_points_where_field_is_extreme(data_array: xr.DataArray,\
-                                   xlim: tuple=(0., 360.),\
-                                   ylim: tuple=(-90, 90.),
 				   extremum='max') -> np.ndarray:
     """
     Find the points where the field is either min or max
     :param data_array: instance of xarray.DataArray
-    :param xlim: min/max values of longitudes
-    :param ylim: min/max values of latitudes
     :param extremum: either 'min' or 'max'
     :returns a numpy array of [(lon, lat), ...] points
     """
     argextrem = np.argmax
     if extremum == 'min':
 	    argextrem = arg.argmin
-    da = data_array.sel(\
-         longitude = slice(xlim[0], xlim[1]),\
-         latitude = slice(ylim[0], ylim[1]) \
-         )
-    lon = da.coords['longitude'].data
-    lat = da.coords['latitude'].data
+    lon = data_array.coords['longitude'].data
+    lat = data_array.coords['latitude'].data
 
     xy_points = []
     for lo in lon:
-        data = da.sel(longitude=lo).data
+        data = data_array.sel(longitude=lo).data
         j = argextrem(data)
         xy_points.append( (lo, lat[j],) )
     
