@@ -106,10 +106,19 @@ def test_find_points_where_field_is_extreme():
 
 def test_linear_regressioni1():
     
-    xy = np.array([(0., 0.), (1., 2.), (2., 4.)])
+    # nothing should be removed
+    xy = np.array([(0., 1.), (1., 3.), (2., 5.)])
     res = paleoscripts.linear_regression_coeffs(xy, cooks_tol=2.0)
-    print(res)
-    assert res.intercept == 0.0
+    assert res.intercept == 1.0
+    assert res.slope == 2.0
+
+
+def test_linear_regressioni2():
+    
+    # one point does not belong here
+    xy = np.array([(0., 1.), (1., 3.), (2., 5.), (3., 0.)])
+    res = paleoscripts.linear_regression_coeffs(xy, cooks_tol=2.0)
+    assert res.intercept == 1.0
     assert res.slope == 2.0
 
 

@@ -155,12 +155,12 @@ def create_contourf_plot(data_array: xr.DataArray,\
 
 
 def linear_regression_coeffs(xy_pts: np.ndarray,
-                             cooks_tol: float = 4): 
+                             cooks_tol: float=4): 
     """
     Find the linear regression coefficients after filtering outliers
     :param xy_pts: 2d array of [(x,y), ..] points
-    :param max_rel_dev: max relative deviation, points that are 
-                        further away from max_rel_dev * std will be removed
+    :param cooks_tol: Cook's distance tolerance, points that are cooks_tol/n distance 
+                      away will be removed. A good value is about 4.
     """
 
     x, y = xy_pts[:, 0], xy_pts[:, 1]
@@ -177,15 +177,12 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
     # obtain Cook's distance for each observation
     cooks = influence.cooks_distance[0]
 
-
-    # remove the points
+    # remove the outliers 
     msk = cooks > cooks_tol
-    msk = np.column_stack((msk, msk))
+    xy_pts_filtered = xy_pts[~msk, :]
 
-    xy_pts_masked = np.ma.array(xy_pts, mask=msk)
-
-    # recompute the linear regressioon coefficients
-    res = linregress(xy_pts_masked)
+    # recompute the linear regressioon coefficients without the outliers
+    res = linregress(xy_pts_filtered)
 
     return res
 
