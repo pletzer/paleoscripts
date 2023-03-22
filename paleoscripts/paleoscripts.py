@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
@@ -152,16 +153,51 @@ def create_contourf_plot(data_array: xr.DataArray,\
     plt.title(title)
 
 
-def find_points_where_field_is_max(data_array: xr.DataArray,\
-                                   xlim: tuple=(0., 360.),\
-                                   ylim: tuple=(-90, 90.)) -> np.ndarray:
+def linear_regression_coeffs(xy_pts: np.ndarray,
+                             max_rel_dev: float): 
     """
-    Find the points where the field is max
+    Find the linear regression coefficients after filtering outliers
+    :param xy_pts: 2d array of [(x,y), ..] points
+    :param max_rel_dev: max relative deviation, points that are 
+                        further away from max_rel_dev * std will be removed
+    """
+    res = linregress(xy_pts)
+    
+    # compute the error
+    ylinear = res.slope*xy_pts[:, 0] + res.intercept
+    error = np.fabs(ylinear - xy_pts[:, 1])
+    stdev = np.std(error)
+
+    # mask the points that are std_error away or more than the standard deviation
+    npts = xy_pts.shape[0]
+    msk = error > abs(max_rel_dev * stdev)
+    mask = np.column_stack((msk, msk))
+    print(f'*** mask={mask}')
+    print(f'*** xy_pts={xy_pts}')
+    xy_pts_masked = np.ma.array(xy_pts, mask=mask)
+    print(f'*** xy_pts_masked={xy_pts_masked}')
+
+    # recompute the linear regressioon coefficients
+    res = linregress(xy_pts_masked)
+
+    return res
+
+
+def find_points_where_field_is_extreme(data_array: xr.DataArray,\
+                                   xlim: tuple=(0., 360.),\
+                                   ylim: tuple=(-90, 90.),
+				   extremum='max') -> np.ndarray:
+    """
+    Find the points where the field is either min or max
     :param data_array: instance of xarray.DataArray
     :param xlim: min/max values of longitudes
     :param ylim: min/max values of latitudes
+    :param extremum: either 'min' or 'max'
     :returns a numpy array of [(lon, lat), ...] points
     """
+    argextrem = np.argmax
+    if extremum == 'min':
+	    argextrem = arg.argmin
     da = data_array.sel(\
          longitude = slice(xlim[0], xlim[1]),\
          latitude = slice(ylim[0], ylim[1]) \
@@ -172,7 +208,7 @@ def find_points_where_field_is_max(data_array: xr.DataArray,\
     xy_points = []
     for lo in lon:
         data = da.sel(longitude=lo).data
-        j = np.argmax(data)
+        j = argextrem(data)
         xy_points.append( (lo, lat[j],) )
     
     return np.array(xy_points)

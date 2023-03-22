@@ -45,7 +45,8 @@ def create_latlon_data(nlat, nlon):
 
     # create some data
     data = np.arange(0, nlat1 * nlon).reshape((nlat1, nlon)) / (nlat1 * nlon)
-    da = xr.DataArray(data, coords=[lat, lon], dims=['latitude', 'longitude'], name='temperature')
+    da = xr.DataArray(data, coords=[lat, lon], \
+                      dims=['latitude', 'longitude'], name='temperature')
 
     return da
 
@@ -70,7 +71,7 @@ def test_create_contourf_plot():
     #plt.show()
 
 
-def test_find_points_where_field_is_max():
+def test_find_points_where_field_is_extreme():
 
     nlat, nlon = 10, 20
     da = create_latlon_data(nlat, nlon)
@@ -79,7 +80,7 @@ def test_find_points_where_field_is_max():
     xlim = (lon_min, lon_max)
     ylim = (lat_min, lat_max)
 
-    xy_points = paleoscripts.find_points_where_field_is_max(da,\
+    xy_points = paleoscripts.find_points_where_field_is_extreme(da,\
         xlim=xlim, ylim=ylim)
 
     # check that the points lie within the box
@@ -92,7 +93,8 @@ def test_find_points_where_field_is_max():
             assert la <= lat_max
 
     # subset the data
-    da2 = da.sel(longitude=slice(lon_min, lon_max), latitude=slice(lat_min, lat_max))
+    da2 = da.sel(longitude=slice(lon_min, lon_max),
+                 latitude=slice(lat_min, lat_max))
 
     # check that we found the max value along lats for each lon
     for i in range(xy_points.shape[0]):
@@ -100,6 +102,15 @@ def test_find_points_where_field_is_max():
         val = da.sel(longitude=lo, latitude=la)
         da3 = da2.sel(longitude=lo)
         assert np.all(da3.data <= val.data)
+
+
+def test_linear_regressioni1():
+    
+    xy = np.array([(0., 0.), (1., 2.), (2., 4.)])
+    res = paleoscripts.linear_regression_coeffs(xy, max_rel_dev=0.1)
+    print(res)
+    assert res.intercept == 0.0
+    assert res.slope == 2.0
 
 
 def test_extract_season():
