@@ -107,7 +107,7 @@ def test_find_points_where_field_is_extreme():
 def test_linear_regressioni1():
     
     xy = np.array([(0., 0.), (1., 2.), (2., 4.)])
-    res = paleoscripts.linear_regression_coeffs(xy, max_rel_dev=0.1)
+    res = paleoscripts.linear_regression_coeffs(xy, cooks_tol=2.0)
     print(res)
     assert res.intercept == 0.0
     assert res.slope == 2.0

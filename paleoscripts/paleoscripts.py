@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+import statsmodels.api as sm
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import cartopy.feature as cfeature
@@ -154,28 +155,34 @@ def create_contourf_plot(data_array: xr.DataArray,\
 
 
 def linear_regression_coeffs(xy_pts: np.ndarray,
-                             max_rel_dev: float): 
+                             cooks_tol: float = 4): 
     """
     Find the linear regression coefficients after filtering outliers
     :param xy_pts: 2d array of [(x,y), ..] points
     :param max_rel_dev: max relative deviation, points that are 
                         further away from max_rel_dev * std will be removed
     """
-    res = linregress(xy_pts)
-    
-    # compute the error
-    ylinear = res.slope*xy_pts[:, 0] + res.intercept
-    error = np.fabs(ylinear - xy_pts[:, 1])
-    stdev = np.std(error)
 
-    # mask the points that are std_error away or more than the standard deviation
-    npts = xy_pts.shape[0]
-    msk = error > abs(max_rel_dev * stdev)
-    mask = np.column_stack((msk, msk))
-    print(f'*** mask={mask}')
-    print(f'*** xy_pts={xy_pts}')
-    xy_pts_masked = np.ma.array(xy_pts, mask=mask)
-    print(f'*** xy_pts_masked={xy_pts_masked}')
+    x, y = xy_pts[:, 0], xy_pts[:, 1]
+
+    # add constant to predictor variables
+    x = sm.add_constant(x)
+
+    # fit linear regression model
+    model = sm.OLS(y, x).fit()
+
+    # create instance of influence
+    influence = model.get_influence()
+
+    # obtain Cook's distance for each observation
+    cooks = influence.cooks_distance[0]
+
+
+    # remove the points
+    msk = cooks > cooks_tol
+    msk = np.column_stack((msk, msk))
+
+    xy_pts_masked = np.ma.array(xy_pts, mask=msk)
 
     # recompute the linear regressioon coefficients
     res = linregress(xy_pts_masked)
