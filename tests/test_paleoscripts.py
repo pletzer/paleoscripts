@@ -101,7 +101,7 @@ def test_find_points_where_field_is_extreme():
         assert np.all(da3.data <= val.data)
 
 
-def test_linear_regressioni1():
+def test_linear_regression1():
     
     # nothing should be removed
     xy = np.array([(0., 1.), (1., 3.), (2., 5.)])
@@ -110,13 +110,29 @@ def test_linear_regressioni1():
     assert res.slope == 2.0
 
 
-def test_linear_regressioni2():
+def test_linear_regression2():
     
-    # one point does not belong here
+    # remove the last point
     xy = np.array([(0., 1.), (1., 3.), (2., 5.), (3., 0.)])
-    res = paleoscripts.linear_regression_coeffs(xy, cooks_tol=2.0)
+    res = paleoscripts.linear_regression_coeffs(xy, cooks_tol=8.0)
     assert res.intercept == 1.0
     assert res.slope == 2.0
+
+
+def test_linear_regression3():
+
+    # lots of points
+    n = 100
+    a = 1.0
+    b = 2.0
+    xy = np.array([(x, a + b*x) for x in np.linspace(0., 10., n)])
+
+    # create some outliers
+    xy[0, :] = xy[0,0], 2.0 + 3*xy[0, 0]
+    res = paleoscripts.linear_regression_coeffs(xy, cooks_tol=4.0)
+    
+    assert abs(res.intercept - a) < 1.e-10
+    assert abs(res.slope - b) < 1.e-10
 
 
 def test_extract_season():
