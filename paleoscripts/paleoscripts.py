@@ -179,7 +179,6 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
     # remove the outliers 
     msk = (cooks > cooks_tol/len(x))
-    print(f'*** msk = {msk} cooks={cooks}')
     xy_pts_filtered = xy_pts[~msk, :]
 
     # recompute the linear regressioon coefficients without the outliers
