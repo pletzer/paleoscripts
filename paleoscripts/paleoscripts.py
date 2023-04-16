@@ -3,8 +3,11 @@ import numpy as np
 import statsmodels.api as sm
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.ticker as mticker
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
+from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 
@@ -63,18 +66,18 @@ def apply_cyclic_padding(data_array: xr.DataArray, coord_name: str='longitude', 
     return x_data_array
 
 
-def create_contourf_plot(data_array: xr.DataArray,\
+def create_contourf_plot(data_array: xr.DataArray,
                          central_longitude: float=0.,
-                         title: str='Temperature',\
+                         title: str='Temperature',
                          levels: np.array=np.linspace(200,320,60),
                          xlim: tuple=(0., 360.),
                          ylim: tuple=(-90., 90.),
-                         cmap: str='bwr',\
+                         cmap: str='bwr',
                          figsize: tuple=(12, 8)) -> None:
     """
     Create contour plot
     :param data_array: instance of xarray.DataArray
-    :param central_longitude mid longitude
+    :param central_longitude: mid longitude
     :param title: title
     :param levels: contour levels
     :param xlim: min/max longitude limits
@@ -227,5 +230,89 @@ def extract_season(data_array: xr.DataArray, season: str):
 
 
 
+def plot_linefit(data_array: xr.DataArray,
+                 central_longitude: float=0.,
+                 levels=[],
+                 xlim: tuple=(0., 360.),
+                 ylim: tuple=(-90., 90.),
+                 fitxlim: tuple=(120., 200.),
+                 fitylim: tuple=(0., 30.),
+                 cmap: str='bwr',
+                 figsize: tuple=(12, 8)) -> matplotlib.axes.Axes:
+    """
+    Create contour plot with line fit
+    :param data_array: 2D field,
+    :param central_longitude: mid longitude
+    :param levels: levels (automatic if empty array)
+    :param xlim: x-bounds for the contour plot
+    :param ylim: y-bounds for the contour plot
+    :param fitxlim: x-bounds for the fitted line
+    :param fitylim: y-bounds for the fitted line
+    :param cmap: colour map
+    :param figsize: figure size
+    """
+    if len(data_array.shape) != 2:
+        raise RuntimeError(f'ERROR: in plot_linefit, array should have only two axes (got {len(data_array.shape)}!)')
 
+
+    fig = plt.figure(figsize=figsize) 
+
+    proj = ccrs.PlateCarree(central_longitude=central_longitude)
+
+    ax = plt.subplot(1, 1, 1, projection=proj)
+
+    ax.set_extent(list(xlim) + list(ylim), crs=ccrs.PlateCarree())
+    ax.coastlines()
+
+    data = data_array.data
+    if not levels:
+        levels = np.linspace(data.min(), data.max(), 21)
+    cs = plt.contourf(data_array['longitude'], data_array['latitude'], data,
+        transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
+
+    plt.colorbar(orientation = 'horizontal')
+
+    gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                      linewidth=1, color='black', alpha=0.3, linestyle='--')
+    gl.top_labels = False
+    gl.left_labels = True
+    gl.xlines = True
+
+    nx = int( (xlim[1] - xlim[0]) / 4 )
+    xticks = np.linspace(np.floor(xlim[0]), np.ceil(xlim[1]), nx + 1)
+    # subtract 360 if larger than 180
+    xticks = (xticks > 180)*(xticks - 360) + (xticks <= 180)*xticks
+    gl.xlocator = mticker.FixedLocator(xticks)
+
+    ny = int( (ylim[1] - ylim[0]) / 4 )
+    yticks = np.linspace(np.floor(ylim[0]), np.ceil(ylim[1]), ny + 1)
+    gl.ylocator = mticker.FixedLocator(yticks)
+
+    gl.xformatter = LONGITUDE_FORMATTER
+    gl.yformatter = LATITUDE_FORMATTER
+    gl.ylabel_style = {'size': 15, 'color': 'gray'}
+    gl.xlabel_style = {'size': 15, 'color': 'gray'}
+
+    #
+    # linear regression
+    #
+
+    nx = int((fitxlim[1] - fitxlim[0])/1.)
+    ny = int((fitylim[1] - fitylim[0])/1.)
+    data_fit = data_array.interp(longitude=np.linspace(fitxlim[0], fitxlim[1], nx),
+                                 latitude=np.linspace(fitylim[0], fitylim[1], ny))
+    
+
+    xy = find_points_where_field_is_extreme(data_fit, extremum='max')
+    reg = linear_regression_coeffs(xy, cooks_tol=4)
+
+    print(xy)
+
+    # plot the points
+    ax.plot(xy[:, 0], xy[:, 1], 'k.', transform=ccrs.PlateCarree(), markersize=20)
+
+    # plot the regression line
+    ax.plot(fitxlim, reg.intercept + reg.slope * np.array(fitxlim), 'r--', transform=ccrs.PlateCarree())
+
+    return ax
 
