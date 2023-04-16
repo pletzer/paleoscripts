@@ -59,12 +59,15 @@ def test_plot_linefit():
     x = da['longitude'][:]
     y = da['latitude'][:]
     xx, yy = np.meshgrid(x, y)
-    da[:] = np.sin(xx*np.pi/180.) * np.cos(yy*np.pi/180.)
+
+    da[:] = np.sin((xx - 48)*np.pi/180.) * np.cos((yy - 0.05*xx)*np.pi/180.)
+
     ax = paleoscripts.plot_linefit(da, central_longitude=180.,
-                         xlim=(100, 200), ylim=(-60., 40.),
-                         fitxlim=(130., 180.), fitylim=(3., 25.),
+                         xlim=(100, 300), ylim=(-60., 40.),
+                         fitxlim=(130., 190.), fitylim=(3., 25.),
                          cmap='bwr', figsize=(12, 8))
     plt.savefig('test_plot_linefit.png')
+
 
 def test_apply_cyclic_padding():
 

@@ -236,7 +236,7 @@ def plot_linefit(data_array: xr.DataArray,
                  xlim: tuple=(0., 360.),
                  ylim: tuple=(-90., 90.),
                  fitxlim: tuple=(120., 200.),
-                 fitylim: tuple=(0., 30.),
+                 fitylim: tuple=(-30, 0.),
                  cmap: str='bwr',
                  figsize: tuple=(12, 8)) -> matplotlib.axes.Axes:
     """
@@ -267,6 +267,7 @@ def plot_linefit(data_array: xr.DataArray,
     data = data_array.data
     if not levels:
         levels = np.linspace(data.min(), data.max(), 21)
+
     cs = plt.contourf(data_array['longitude'], data_array['latitude'], data,
         transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
 
@@ -278,15 +279,15 @@ def plot_linefit(data_array: xr.DataArray,
     gl.left_labels = True
     gl.xlines = True
 
-    nx = int( (xlim[1] - xlim[0]) / 4 )
-    xticks = np.linspace(np.floor(xlim[0]), np.ceil(xlim[1]), nx + 1)
-    # subtract 360 if larger than 180
-    xticks = (xticks > 180)*(xticks - 360) + (xticks <= 180)*xticks
-    gl.xlocator = mticker.FixedLocator(xticks)
+    # nx = int( (xlim[1] - xlim[0]) / 4 )
+    # xticks = np.linspace(np.floor(xlim[0]), np.ceil(xlim[1]), nx + 1)
+    # # subtract 360 if larger than 180
+    # xticks = (xticks > 180)*(xticks - 360) + (xticks <= 180)*xticks
+    # gl.xlocator = mticker.FixedLocator(xticks)
 
-    ny = int( (ylim[1] - ylim[0]) / 4 )
-    yticks = np.linspace(np.floor(ylim[0]), np.ceil(ylim[1]), ny + 1)
-    gl.ylocator = mticker.FixedLocator(yticks)
+    # ny = int( (ylim[1] - ylim[0]) / 4 )
+    # yticks = np.linspace(np.floor(ylim[0]), np.ceil(ylim[1]), ny + 1)
+    # gl.ylocator = mticker.FixedLocator(yticks)
 
     gl.xformatter = LONGITUDE_FORMATTER
     gl.yformatter = LATITUDE_FORMATTER
@@ -302,11 +303,8 @@ def plot_linefit(data_array: xr.DataArray,
     data_fit = data_array.interp(longitude=np.linspace(fitxlim[0], fitxlim[1], nx),
                                  latitude=np.linspace(fitylim[0], fitylim[1], ny))
     
-
     xy = find_points_where_field_is_extreme(data_fit, extremum='max')
     reg = linear_regression_coeffs(xy, cooks_tol=4)
-
-    print(xy)
 
     # plot the points
     ax.plot(xy[:, 0], xy[:, 1], 'k.', transform=ccrs.PlateCarree(), markersize=20)
