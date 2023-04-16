@@ -279,20 +279,10 @@ def plot_linefit(data_array: xr.DataArray,
     gl.left_labels = True
     gl.xlines = True
 
-    # nx = int( (xlim[1] - xlim[0]) / 4 )
-    # xticks = np.linspace(np.floor(xlim[0]), np.ceil(xlim[1]), nx + 1)
-    # # subtract 360 if larger than 180
-    # xticks = (xticks > 180)*(xticks - 360) + (xticks <= 180)*xticks
-    # gl.xlocator = mticker.FixedLocator(xticks)
-
-    # ny = int( (ylim[1] - ylim[0]) / 4 )
-    # yticks = np.linspace(np.floor(ylim[0]), np.ceil(ylim[1]), ny + 1)
-    # gl.ylocator = mticker.FixedLocator(yticks)
-
     gl.xformatter = LONGITUDE_FORMATTER
     gl.yformatter = LATITUDE_FORMATTER
     gl.ylabel_style = {'size': 15, 'color': 'gray'}
-    gl.xlabel_style = {'size': 15, 'color': 'gray'}
+    gl.xlabel_style = {'size': 15, 'color': 'gray', 'rotation': 45}
 
     #
     # linear regression
