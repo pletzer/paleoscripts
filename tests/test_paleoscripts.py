@@ -60,7 +60,7 @@ def test_plot_linefit():
     y = da['latitude'][:]
     xx, yy = np.meshgrid(x, y)
 
-    da[:] = np.sin((xx - 48)*np.pi/180.) * np.cos((yy - 0.05*xx)*np.pi/180.)
+    da[:] = (np.sin((xx - 48)*np.pi/180.) * np.cos((yy - 0.05*xx)*np.pi/180.))**2
 
     ax = paleoscripts.plot_linefit(da, central_longitude=180.,
                          xlim=(100, 300), ylim=(-60., 40.),
@@ -78,15 +78,15 @@ def test_apply_cyclic_padding():
     assert np.all(x_da[..., 0] == x_da[..., -1])
 
 
-def test_create_contourf_plot():
+def test_plot_contour():
     
     nlat, nlon = 10, 20
     da = create_latlon_data(nlat, nlon)
     x_da = paleoscripts.apply_cyclic_padding(da)
-    p = paleoscripts.create_contourf_plot(da, title='toto',\
-        levels=np.linspace(0., 1., 11),\
+    p = paleoscripts.plot_contour(x_da, title='',\
+        levels=np.linspace(da.min(), da.max(), 11),\
         xlim=(-180, 180), ylim=(-90,90))
-    plt.savefig('test_create_contourf_plot.png')
+    plt.savefig('test_plot_contour.png')
 
 
 def test_find_points_where_field_is_extreme():

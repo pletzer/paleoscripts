@@ -66,10 +66,10 @@ def apply_cyclic_padding(data_array: xr.DataArray, coord_name: str='longitude', 
     return x_data_array
 
 
-def create_contourf_plot(data_array: xr.DataArray,
+def plot_contour(data_array: xr.DataArray,
                          central_longitude: float=0.,
-                         title: str='Temperature',
-                         levels: np.array=np.linspace(200,320,60),
+                         title: str='',
+                         levels=None,
                          xlim: tuple=(0., 360.),
                          ylim: tuple=(-90., 90.),
                          cmap: str='bwr',
@@ -86,74 +86,37 @@ def create_contourf_plot(data_array: xr.DataArray,
     :param figsize: figure size
     """
 
-    fig = plt.figure(figsize=figsize)
+    fig = plt.figure(figsize=figsize) 
+
     proj = ccrs.PlateCarree(central_longitude=central_longitude)
-    ax = plt.axes(projection=proj)
 
-    # add land feature
-    ax.add_feature(cfeature.LAND, facecolor="lightgrey", zorder=1)
+    ax = plt.subplot(1, 1, 1, projection=proj)
 
-
-    gv.set_titles_and_labels(ax,
-                             maintitle="",
-                             maintitlefontsize=18,
-                             lefttitle="",
-                             lefttitlefontsize=18,
-                             righttitle="",
-                             righttitlefontsize=18)
-
-    # Format tick labels as latitude and longitudes
-    gv.add_lat_lon_ticklabels(ax=ax)
-
-    # Use geocat-viz utility function to customize tick marks
-    gv.set_axes_limits_and_ticks(ax,
-                                 xlim=xlim,
-                                 ylim=ylim,
-                                 xticks=np.linspace(xlim[0], xlim[1], 7),
-                                 yticks=np.linspace(ylim[0], ylim[1], 5))
-
-    # Remove degree symbol from tick labels
-    ax.yaxis.set_major_formatter(LatitudeFormatter(degree_symbol=''))
-    ax.xaxis.set_major_formatter(LongitudeFormatter(degree_symbol=''))
-
-    # Add minor tick marks
-    gv.add_major_minor_ticks(ax,
-                             x_minor_per_major=4,
-                             y_minor_per_major=4,
-                             labelsize=14)
-
-    # Make sure that tick marks are only on the left and bottom sides of subplot
-    ax.tick_params('both', which='both', top=False, right=False)
-
-
-    vmo_plot = data_array.plot.contourf(
-                                 ax=ax,
-                                 transform=proj,
-                                 levels=levels,
-                                 cmap=cmap,
-                                 add_colorbar=False)  
-
-    # Add and customize colorbar
-    units = ''
-    if hasattr(data_array, 'units'):
-        units = data_array.units
-
-    cbar_ticks = np.linspace(min(levels), max(levels), 11)
-
-    plt.colorbar(ax=ax,
-             mappable=vmo_plot,
-             extendrect=False,
-             extendfrac='Auto',
-             label=units,
-             ticks=cbar_ticks,
-             drawedges=False,
-             aspect=15,
-             shrink=0.55)
-
+    ax.set_extent(list(xlim) + list(ylim), crs=ccrs.PlateCarree())
     ax.coastlines()
-    ax.set(xlabel=None)
-    ax.set(ylabel=None)
 
+    data = data_array.data
+    if levels is None:
+        levels = np.linspace(data.min(), data.max(), 21)
+
+    cs = plt.contourf(data_array['longitude'], data_array['latitude'], data,
+        transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
+
+    plt.colorbar(orientation = 'horizontal')
+
+    gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                      linewidth=1, color='black', alpha=0.3, linestyle='--')
+    gl.top_labels = False
+    gl.left_labels = True
+    gl.xlines = True
+
+    gl.xformatter = LONGITUDE_FORMATTER
+    gl.yformatter = LATITUDE_FORMATTER
+    gl.ylabel_style = {'size': 15, 'color': 'gray'}
+    gl.xlabel_style = {'size': 15, 'color': 'gray', 'rotation': 45}
+
+    if not title:
+        title = data_array.name
     plt.title(title)
 
 
@@ -232,7 +195,7 @@ def extract_season(data_array: xr.DataArray, season: str):
 
 def plot_linefit(data_array: xr.DataArray,
                  central_longitude: float=0.,
-                 levels=[],
+                 levels=None,
                  xlim: tuple=(0., 360.),
                  ylim: tuple=(-90., 90.),
                  fitxlim: tuple=(120., 200.),
@@ -243,7 +206,7 @@ def plot_linefit(data_array: xr.DataArray,
     Create contour plot with line fit
     :param data_array: 2D field,
     :param central_longitude: mid longitude
-    :param levels: levels (automatic if empty array)
+    :param levels: levels (automatic if None)
     :param xlim: x-bounds for the contour plot
     :param ylim: y-bounds for the contour plot
     :param fitxlim: x-bounds for the fitted line
@@ -265,7 +228,7 @@ def plot_linefit(data_array: xr.DataArray,
     ax.coastlines()
 
     data = data_array.data
-    if not levels:
+    if levels is None:
         levels = np.linspace(data.min(), data.max(), 21)
 
     cs = plt.contourf(data_array['longitude'], data_array['latitude'], data,
