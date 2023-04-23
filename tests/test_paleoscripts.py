@@ -44,9 +44,13 @@ def create_latlon_data(nlat, nlon):
     lon = np.linspace(0., 360 - dlon, nlon)
 
     # create some data
-    data = np.arange(0, nlat1 * nlon).reshape((nlat1, nlon)) / (nlat1 * nlon)
+    xx, yy = np.meshgrid(lon, lat)
+
+    data = (np.sin((xx - 48)*np.pi/180.) * np.cos((yy - 0.05*xx)*np.pi/180.))**2
+
+
     da = xr.DataArray(data, coords=[lat, lon], \
-                      dims=['latitude', 'longitude'], name='temperature')
+                      dims=['latitude', 'longitude'], name='fake_data')
 
     return da
 
@@ -59,8 +63,6 @@ def test_plot_linefit():
     x = da['longitude'][:]
     y = da['latitude'][:]
     xx, yy = np.meshgrid(x, y)
-
-    da[:] = (np.sin((xx - 48)*np.pi/180.) * np.cos((yy - 0.05*xx)*np.pi/180.))**2
 
     ax = paleoscripts.plot_linefit(da, central_longitude=180.,
                          xlim=(100, 300), ylim=(-60., 40.),
