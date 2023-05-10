@@ -17,11 +17,11 @@ def rain_colormap(n = 32):
     x = np.linspace(0., 1., n1)
     cmap = np.empty((n1, 4), np.float32)
     # red
-    cmap[:, 0] = 0.9*(1. - x)
+    cmap[:, 0] = 0.95*(1. - x)
     # green
-    cmap[:, 1] = 1. - x
+    cmap[:, 1] = 1. - x**2
     # blue
-    cmap[:, 2] = 0.9*(1. - x) + x
+    cmap[:, 2] = 0.95*(1. - x) + 0.5*x
     # opacity
     cmap[:, 3] = 1.
     return matplotlib.colors.ListedColormap(cmap)
