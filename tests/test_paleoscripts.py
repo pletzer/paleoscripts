@@ -55,6 +55,21 @@ def create_latlon_data(nlat, nlon):
     return da
 
 
+def test_rain_colormap():
+
+    nlat, nlon = 180, 360
+    da = create_latlon_data(nlat, nlon)
+    da = paleoscripts.apply_cyclic_padding(da)
+    x = da['longitude'][:]
+    y = da['latitude'][:]
+    xx, yy = np.meshgrid(x, y)
+
+    cm = paleoscripts.rain_colormap()
+    p = plt.contourf(xx, yy, da, cmap=cm)
+    plt.colorbar(p)
+    plt.savefig('test_rain_colormap.png')
+
+
 def test_plot_linefit():
 
     nlat, nlon = 180, 360

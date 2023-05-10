@@ -12,6 +12,21 @@ import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 
 
+def rain_colormap(n = 32):
+    n1 = n + 1
+    x = np.linspace(0., 1., n1)
+    cmap = np.empty((n1, 4), np.float32)
+    # red
+    cmap[:, 0] = 0.9*(1. - x)
+    # green
+    cmap[:, 1] = 1. - x
+    # blue
+    cmap[:, 2] = 0.9*(1. - x) + x
+    # opacity
+    cmap[:, 3] = 1.
+    return matplotlib.colors.ListedColormap(cmap)
+
+
 def apply_cyclic_padding(data_array: xr.DataArray, coord_name: str='longitude', period: float=360.) -> xr.DataArray:
     """
     Apply cyclic padding to a data array along a given coordinate
