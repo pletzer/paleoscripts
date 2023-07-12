@@ -27,6 +27,7 @@ def create_month_latlon_data(nlat, nlon):
 
     # create some data
     data = np.random.rand(12, nlat1, nlon1)
+
     da = xr.DataArray(data, coords=[mon, lat, lon], dims=['month', 'latitude', 'longitude'], name='noise')
 
     return da    
@@ -53,6 +54,17 @@ def create_latlon_data(nlat, nlon):
                       dims=['latitude', 'longitude'], name='fake_data')
 
     return da
+
+
+def test_area_weighted_average():
+
+    nlat, nlon = 6, 12
+    da = create_month_latlon_data(nlat, nlon)
+    xlim = (10., 30.)
+    ylim = (50., 80.)
+    da_weighted = paleoscripts.area_weighted_average(da, xlim=xlim, ylim=ylim, nx1=11, ny1=21)
+    assert da_weighted.min() >= da.min()
+    assert da_weighted.max() <= da.max()
 
 
 def test_rain_colormap():

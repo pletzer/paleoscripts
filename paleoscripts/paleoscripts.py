@@ -12,6 +12,59 @@ import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 
 
+def area_weighted_average(data_array: xr.DataArray,
+                          xlim: tuple=(0., 360.), ylim: tuple=(-90., 90),
+                          nx1: int=101, ny1: int=101) -> xr.DataArray:
+    """
+    Compute the area weighted average of a (time, latitude, longitude) field
+    :param data_array: field
+    :param xlim: tuple of (min, max) longitudes of the box
+    :param ylim: tuple of (min, max) latitudes of the box
+    :param nx1: number of target interpolation longitude points in longitudes
+    :param ny1: number of target interpolation longitude points in latitudes
+    """
+
+    nt = data_array.shape[0] # first index is time axis
+
+    # the resulting array
+    res = np.empty((nt,), data_array.dtype)
+
+    # the target coordinates
+    xs = np.linspace(xlim[0], xlim[1], nx1)
+    ys = np.linspace(ylim[0], ylim[1], ny1)
+
+    # remap the array to the target points
+    data = data_array.interp(longitude=xs, latitude=ys)
+
+    # compute the area elements
+    area = np.tile(np.cos(xs * np.pi/180), (ys.shape[0], 1))
+    total_area = area.sum()
+
+    # first axis is assumed to be time-like
+    for itime in range(nt):
+        res[itime] = (data[itime, ...] * area).sum()/total_area
+
+    dim_name = data_array.dims[0]
+    return xr.DataArray(res, dims=(dim_name,), coords=[data_array.coords[dim_name]])
+
+
+
+def correlation(data_array1, xlim, ylim, data_array2):
+    """
+    Compute the Pearson correlation between the area averaged data_array1 in box (xlim, ylim) and data_array2
+    :param data_arra1: reference array with axes (time, latitude, longitude)
+    :param xlim: tuple of (min, max) longitudes of the box
+    :param ylim: tuple of (min, max) latitudes of the box
+    :param data_array2: other array with axes (time, latitude, longitude)
+    :returns an array of the same size as data_array2 representing the Pearson coefficient in the range -1 to 1
+    """
+    # compute the area weighted average over the box
+    ref_values = area_weighted_average(data_array1, xlim, ylim)
+    return xr.corr(data_array2, ref_values, dim='year')
+
+
+
+
 def rain_colormap(n = 32):
     n1 = n + 1
     x = np.linspace(0., 1., n1)
