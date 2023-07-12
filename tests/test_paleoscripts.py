@@ -74,6 +74,9 @@ def test_correlation():
     xlim = (10., 30.)
     ylim = (50., 80.)
     res = paleoscripts.correlation(da, xlim, ylim, da, dim='month')
+    assert np.all(res.shape == da.shape[1:])
+    assert res.min() >= -1.0
+    assert res.max() <= 1.0
 
 
 def test_rain_colormap():
