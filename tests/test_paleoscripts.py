@@ -67,6 +67,15 @@ def test_area_weighted_average():
     assert da_weighted.max() <= da.max()
 
 
+def test_correlation():
+
+    nlat, nlon = 6, 12
+    da = create_month_latlon_data(nlat, nlon)
+    xlim = (10., 30.)
+    ylim = (50., 80.)
+    res = paleoscripts.correlation(da, xlim, ylim, da, dim='month')
+
+
 def test_rain_colormap():
 
     nlat, nlon = 180, 360

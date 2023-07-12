@@ -49,18 +49,19 @@ def area_weighted_average(data_array: xr.DataArray,
 
 
 
-def correlation(data_array1, xlim, ylim, data_array2):
+def correlation(data_array1, xlim, ylim, data_array2, dim='year'):
     """
     Compute the Pearson correlation between the area averaged data_array1 in box (xlim, ylim) and data_array2
     :param data_arra1: reference array with axes (time, latitude, longitude)
     :param xlim: tuple of (min, max) longitudes of the box
     :param ylim: tuple of (min, max) latitudes of the box
     :param data_array2: other array with axes (time, latitude, longitude)
+    :param dim: dimension along which the correlation should be computed
     :returns an array of the same size as data_array2 representing the Pearson coefficient in the range -1 to 1
     """
     # compute the area weighted average over the box
     ref_values = area_weighted_average(data_array1, xlim, ylim)
-    return xr.corr(data_array2, ref_values, dim='year')
+    return xr.corr(data_array2, ref_values, dim=dim)
 
 
 
