@@ -78,6 +78,10 @@ def test_correlation():
     assert res.min() >= -1.0
     assert res.max() <= 1.0
 
+    res2 = paleoscripts.pearson_r(da, xlim, ylim, da, dim='month')
+    assert abs((res - res2).sum()) < 1.e-10
+    pval = paleoscripts.pearson_p(da, xlim, ylim, da, dim='month')
+
 
 def test_rain_colormap():
 

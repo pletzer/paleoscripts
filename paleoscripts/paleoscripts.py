@@ -10,6 +10,7 @@ import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
+import xskillscore as xs
 
 
 def area_weighted_average(data_array: xr.DataArray,
@@ -49,7 +50,7 @@ def area_weighted_average(data_array: xr.DataArray,
 
 
 
-def correlation(data_array1, xlim, ylim, data_array2, dim='year'):
+def pearson_r(data_array1, xlim, ylim, data_array2, dim='year'):
     """
     Compute the Pearson correlation between the area averaged data_array1 in box (xlim, ylim) and data_array2
     :param data_arra1: reference array with axes (time, latitude, longitude)
@@ -61,9 +62,34 @@ def correlation(data_array1, xlim, ylim, data_array2, dim='year'):
     """
     # compute the area weighted average over the box
     ref_values = area_weighted_average(data_array1, xlim, ylim)
-    return xr.corr(data_array2, ref_values, dim=dim)
+    return xs.pearson_r(data_array2, ref_values, dim=dim)
 
+def pearson_p(data_array1, xlim, ylim, data_array2, dim='year'):
+    """
+    Compute the Pearson p-value between the area averaged data_array1 in box (xlim, ylim) and data_array2
+    :param data_arra1: reference array with axes (time, latitude, longitude)
+    :param xlim: tuple of (min, max) longitudes of the box
+    :param ylim: tuple of (min, max) latitudes of the box
+    :param data_array2: other array with axes (time, latitude, longitude)
+    :param dim: dimension along which the correlation should be computed
+    :returns an array of the same size as data_array2 representing the Pearson p-value in the range -1 to 1
+    """
+    # compute the area weighted average over the box
+    ref_values = area_weighted_average(data_array1, xlim, ylim)
+    return xs.pearson_r_p_value(data_array2, ref_values, dim=dim)
 
+def correlation(data_array1, xlim, ylim, data_array2, dim='year'):
+    """
+    Compute the Pearson correlation between the area averaged data_array1 in box (xlim, ylim) and data_array2
+    :param data_arra1: reference array with axes (time, latitude, longitude)
+    :param xlim: tuple of (min, max) longitudes of the box
+    :param ylim: tuple of (min, max) latitudes of the box
+    :param data_array2: other array with axes (time, latitude, longitude)
+    :param dim: dimension along which the correlation should be computed
+    :returns an array of the same size as data_array2 representing the Pearson coefficient in the range -1 to 1
+    """
+    # compute the area weighted average over the box
+    return pearson_r(data_array2, xlim, ylim, data_array2, dim=dim)
 
 
 def rain_colormap(n = 32):
