@@ -169,7 +169,7 @@ def plot_contour(data_array: xr.DataArray,
                          ylim: tuple=(-90., 90.),
                          cmap: str='bwr',
                          figsize: tuple=(12, 8),
-                         cbarorient: str='vertical') -> None:
+                         cbarorient: str='horizontal') -> None:
     """
     Create contour plot
     :param data_array: instance of xarray.DataArray
