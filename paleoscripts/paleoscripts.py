@@ -168,7 +168,7 @@ def plot_contour(data_array: xr.DataArray,
                          xlim: tuple=(0., 360.),
                          ylim: tuple=(-90., 90.),
                          cmap: str='bwr',
-                         figsize: tuple=(12, 8)) -> None:
+                         figsize: tuple=(12, 8), cbarorient: str='vertical') -> None:
     """
     Create contour plot
     :param data_array: instance of xarray.DataArray
@@ -179,6 +179,7 @@ def plot_contour(data_array: xr.DataArray,
     :param ylim: min/max latitude limits
     :param cmap: colormap name
     :param figsize: figure size
+    :param cbarorient: "vertical" or "horizontal"
     """
 
     fig = plt.figure(figsize=figsize) 
@@ -197,7 +198,7 @@ def plot_contour(data_array: xr.DataArray,
     cs = plt.contourf(data_array['longitude'], data_array['latitude'], data,
         transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
 
-    plt.colorbar(orientation = 'horizontal')
+    plt.colorbar(orientation = cbarorient)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                       linewidth=1, color='black', alpha=0.3, linestyle='--')
