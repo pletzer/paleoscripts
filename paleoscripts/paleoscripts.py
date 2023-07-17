@@ -208,22 +208,22 @@ def plot_contour(data_array: xr.DataArray,
     mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
 
 # Add and customize colorbar
-   cbar_ticks = (-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1) 
+   #cbar_ticks =(-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1) 
 
 
    plt.colorbar(ax=ax,
-             cmap=cmap,
-             mappable=mappable,
-             norm=norm,
-             boundaries=bounds,
-             label= '',
-             extendrect=True,
-             extendfrac=True,
-             ticks=cbar_ticks,
-             spacing='proportional',
-             orientation =cbarorient,
-             drawedges=False,
-             fraction=0.026)
+               cmap=cmap,
+               mappable=mappable,
+               norm=norm,
+               boundaries=bounds,
+               label= '',
+               extendrect=True,
+               extendfrac=True,
+               ticks=(-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1),
+               spacing='proportional',
+               orientation =cbarorient,
+               drawedges=False,
+               fraction=0.026)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                       linewidth=1, color='black', alpha=0.3, linestyle='--')
