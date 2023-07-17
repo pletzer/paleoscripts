@@ -199,7 +199,31 @@ def plot_contour(data_array: xr.DataArray,
     cs = plt.contourf(data_array['longitude'], data_array['latitude'], data,
         transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
 
-    plt.colorbar(orientation = cbarorient)
+
+    bounds = [-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1]				 
+    #plt.colorbar(orientation = cbarorient)
+
+# Add colorbar for all four plots
+    norm=mcolors.BoundaryNorm(bounds, cmap.N)
+    mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+
+# Add and customize colorbar
+cbar_ticks = (-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1) 
+
+
+plt.colorbar(ax=ax,
+             cmap=cmap,
+             mappable=mappable,
+             norm=norm,
+             boundaries=bounds,
+             label= '',
+             extendrect=True,
+             extendfrac=True,
+             ticks=cbar_ticks,
+             spacing='proportional',
+             orientation =cbarorient,
+             drawedges=False,
+             fraction=0.026)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                       linewidth=1, color='black', alpha=0.3, linestyle='--')
@@ -209,8 +233,8 @@ def plot_contour(data_array: xr.DataArray,
 
     gl.xformatter = LONGITUDE_FORMATTER
     gl.yformatter = LATITUDE_FORMATTER
-    gl.ylabel_style = {'size': 15, 'color': 'gray'}
-    gl.xlabel_style = {'size': 15, 'color': 'gray', 'rotation': 45}
+    gl.ylabel_style = {'size': 15, 'color': 'black'}
+    gl.xlabel_style = {'size': 15, 'color': 'black', 'rotation': 0}
 
     if not title:
         title = data_array.name
