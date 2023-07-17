@@ -5,6 +5,7 @@ from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.ticker as mticker
+import matplotlib.colors as mcolors
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
@@ -203,12 +204,13 @@ def plot_contour(data_array: xr.DataArray,
     bounds = [-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1]				 
     #plt.colorbar(orientation = cbarorient)
 
-# Add colorbar for the  plot
-    norm=mcolors.BoundaryNorm(bounds, cmap.N)
-    mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+    mycolormap = getattr(plt.cm, cmap)
 
+    # Add colorbar for the  plot
+    norm = mcolors.BoundaryNorm(bounds, mycolormap.N)
+    mappable = plt.cm.ScalarMappable(norm=norm, cmap=mycolormap)
 
-   plt.colorbar(ax=ax,
+    plt.colorbar(ax=ax,
                cmap=cmap,
                mappable=mappable,
                norm=norm,
