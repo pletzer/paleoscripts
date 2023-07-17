@@ -222,7 +222,7 @@ def plot_contour(data_array: xr.DataArray,
                spacing='uniform',
                orientation =cbarorient,
                drawedges=False,
-               fraction=0.020)
+               fraction=0.047)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                       linewidth=1, color='black', alpha=0.3, linestyle='--')
