@@ -203,12 +203,9 @@ def plot_contour(data_array: xr.DataArray,
     bounds = [-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1]				 
     #plt.colorbar(orientation = cbarorient)
 
-# Add colorbar for all four plots
+# Add colorbar for the  plot
     norm=mcolors.BoundaryNorm(bounds, cmap.N)
     mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
-
-# Add and customize colorbar
-   #cbar_ticks =(-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1) 
 
 
    plt.colorbar(ax=ax,
