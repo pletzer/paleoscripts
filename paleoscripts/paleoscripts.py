@@ -219,7 +219,7 @@ def plot_contour(data_array: xr.DataArray,
                extendrect=True,
                extendfrac=True,
                ticks=(-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1),
-               spacing='proportional',
+               spacing='uniform',
                orientation =cbarorient,
                drawedges=False,
                fraction=0.026)
