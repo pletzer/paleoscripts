@@ -22,14 +22,19 @@ def gridded_data_to_excel(data_array, file_name, lon_name='longitude', lat_name=
     :param lon_name: name of the longitude axis
     :param lat_name: name of the latitude axis
     """
+
+    print(f'{lon_name} = {data_array[lon_name]}')
+    print(f'{lat_name} = {data_array[lat_name]}')
     # convert the axes to 2d arrays
     lon2d, lat2d = np.meshgrid(data_array[lon_name], data_array[lat_name], indexing='xy')
+    print(f'lon2d = {lon2d}')
+    print(f'lat2d = {lat2d}')
 
     # create a data frame
-    df = pd.DataFrame({lon_name: lon2d, lat_name: lat2d, data_array.name: data_array})
+    df = pd.DataFrame({lon_name: np.ravel(lon2d), lat_name: np.ravel(lat2d), data_array.name: np.ravel(data_array)})
 
     # save the data frame to an excel file
-    df.to_exel(file_name)
+    df.to_excel(file_name)
 
 
 

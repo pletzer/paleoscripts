@@ -10,6 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+# Convenience functions used by some tests
+
 def create_month_latlon_data(nlat, nlon):
 
     nlat1, nlon1 = nlat + 1, nlon + 1
@@ -54,6 +56,16 @@ def create_latlon_data(nlat, nlon):
                       dims=['latitude', 'longitude'], name='fake_data')
 
     return da
+
+
+# Tests start here
+##################
+
+
+def test_gridded_data_to_excel():
+    da = create_latlon_data(4, 8)
+    paleoscripts.gridded_data_to_excel(da, 'fake_data.xlsx')
+
 
 
 def test_area_weighted_average():
