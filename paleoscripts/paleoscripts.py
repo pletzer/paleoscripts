@@ -12,6 +12,25 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 import xskillscore as xs
+import pandas as pd
+
+
+def gridded_data_to_excel(data_array, file_name, lon_name='longitude', lat_name='latitude'):
+    """
+    Save lon-lat gridded data to an excel file
+    :param file_name: Excel file name
+    :param lon_name: name of the longitude axis
+    :param lat_name: name of the latitude axis
+    """
+    # convert the axes to 2d arrays
+    lon2d, lat2d = np.meshgrid(data_array[lon_name], data_array[lat_name], indexing='xy')
+
+    # create a data frame
+    df = pd.DataFrame({lon_name: lon2d, lat_name: lat2d, data_array.name: data_array})
+
+    # save the data frame to an excel file
+    df.to_exel(file_name)
+
 
 
 def area_weighted_average(data_array: xr.DataArray,
@@ -54,7 +73,7 @@ def area_weighted_average(data_array: xr.DataArray,
 def pearson_r(data_array1, xlim, ylim, data_array2, dim='year'):
     """
     Compute the Pearson correlation between the area averaged data_array1 in box (xlim, ylim) and data_array2
-    :param data_arra1: reference array with axes (time, latitude, longitude)
+    :param data_arra1: reference array with axes (time, latitude, longitude) to be area averaged within (xlim, ylim) box
     :param xlim: tuple of (min, max) longitudes of the box
     :param ylim: tuple of (min, max) latitudes of the box
     :param data_array2: other array with axes (time, latitude, longitude)
@@ -68,7 +87,7 @@ def pearson_r(data_array1, xlim, ylim, data_array2, dim='year'):
 def pearson_p(data_array1, xlim, ylim, data_array2, dim='year'):
     """
     Compute the Pearson p-value between the area averaged data_array1 in box (xlim, ylim) and data_array2
-    :param data_arra1: reference array with axes (time, latitude, longitude)
+    :param data_arra1: reference array with axes (time, latitude, longitude) to be area averaged within (xlim, ylim) box
     :param xlim: tuple of (min, max) longitudes of the box
     :param ylim: tuple of (min, max) latitudes of the box
     :param data_array2: other array with axes (time, latitude, longitude)
