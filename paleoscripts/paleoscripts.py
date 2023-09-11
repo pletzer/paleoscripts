@@ -230,7 +230,7 @@ def plot_contour(data_array: xr.DataArray,
     # norm = mcolors.BoundaryNorm(bounds, mycolormap.N)
     # mappable = plt.cm.ScalarMappable(norm=norm, cmap=mycolormap)
 
-    plt.colorbar(corr_map2,
+    plt.colorbar(cs,
 	          ax=ax,
                   cmap=cmap,
                   label= '',
