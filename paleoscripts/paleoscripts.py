@@ -221,28 +221,40 @@ def plot_contour(data_array: xr.DataArray,
         transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
 
 
-    bounds = [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1]				 
+    # bounds = [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1]				 
     #plt.colorbar(orientation = cbarorient)
 
-    mycolormap = getattr(plt.cm, cmap)
+    # mycolormap = getattr(plt.cm, cmap)
 
     # Add colorbar for the  plot
-    norm = mcolors.BoundaryNorm(bounds, mycolormap.N)
-    mappable = plt.cm.ScalarMappable(norm=norm, cmap=mycolormap)
+    # norm = mcolors.BoundaryNorm(bounds, mycolormap.N)
+    # mappable = plt.cm.ScalarMappable(norm=norm, cmap=mycolormap)
 
-    plt.colorbar(ax=ax,
-               cmap=cmap,
-               mappable=mappable,
-               norm=norm,
-               boundaries=bounds,
-               label= '',
-               extendrect=True,
-               extendfrac=True,
-               ticks=(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1),
-               spacing='uniform',
-               orientation =cbarorient,
-               drawedges=False,
-               fraction=0.047)
+plt.colorbar(cs,
+	     ax=ax,
+             cmap=cmap,
+             label= '',
+             extendrect=True,
+             extendfrac=True,
+             ticks=(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1),
+             spacing='uniform',
+             orientation =cbarorient,
+             drawedges=False,
+             fraction=0.047) 
+				 
+# plt.colorbar(ax=ax,
+#                cmap=cmap,
+#                mappable=mappable,
+#                norm=norm,
+#                boundaries=bounds,
+#                label= '',
+#                extendrect=True,
+#                extendfrac=True,
+#                ticks=(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1),
+#                spacing='uniform',
+#                orientation =cbarorient,
+#                drawedges=False,
+#                fraction=0.047)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                       linewidth=1, color='black', alpha=0.3, linestyle='--')
