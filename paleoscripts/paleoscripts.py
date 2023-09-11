@@ -230,13 +230,13 @@ def plot_contour(data_array: xr.DataArray,
     # norm = mcolors.BoundaryNorm(bounds, mycolormap.N)
     # mappable = plt.cm.ScalarMappable(norm=norm, cmap=mycolormap)
 
-    plt.colorbar(cs,
+    plt.colorbar(corr_map2,
 	          ax=ax,
                   cmap=cmap,
                   label= '',
                   extendrect=True,
                   extendfrac=True,
-                  ticks=(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1),
+                  ticks=np.linspace(-1, 1, 10),
                   spacing='uniform',
                   orientation =cbarorient,
                   drawedges=False,
