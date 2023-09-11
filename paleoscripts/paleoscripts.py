@@ -221,7 +221,7 @@ def plot_contour(data_array: xr.DataArray,
         transform=ccrs.PlateCarree(), levels=levels, cmap=cmap)
 
 
-    bounds = [-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1]				 
+    bounds = [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1]				 
     #plt.colorbar(orientation = cbarorient)
 
     mycolormap = getattr(plt.cm, cmap)
@@ -238,7 +238,7 @@ def plot_contour(data_array: xr.DataArray,
                label= '',
                extendrect=True,
                extendfrac=True,
-               ticks=(-1, -0.9, -0.7, -0.3, 0.3, 0.7, 0.9, 1),
+               ticks=(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1),
                spacing='uniform',
                orientation =cbarorient,
                drawedges=False,
