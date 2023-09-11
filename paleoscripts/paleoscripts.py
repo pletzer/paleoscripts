@@ -202,6 +202,7 @@ def plot_contour(data_array: xr.DataArray,
     :param ylim: min/max latitude limits
     :param cmap: colormap name
     :param figsize: figure size
+    :param ticks: ticks of the colorbar
     :param cbarorient: "vertical" or "horizontal"
     """
 
