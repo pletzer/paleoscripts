@@ -242,19 +242,6 @@ def plot_contour(data_array: xr.DataArray,
                    drawedges=False,
                    fraction=0.047) 
 				 
-# plt.colorbar(ax=ax,
-#                cmap=cmap,
-#                mappable=mappable,
-#                norm=norm,
-#                boundaries=bounds,
-#                label= '',
-#                extendrect=True,
-#                extendfrac=True,
-#                ticks=(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1),
-#                spacing='uniform',
-#                orientation =cbarorient,
-#                drawedges=False,
-#                fraction=0.047)
 
     gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                       linewidth=1, color='black', alpha=0.3, linestyle='--')
