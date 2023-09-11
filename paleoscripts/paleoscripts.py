@@ -190,6 +190,7 @@ def plot_contour(data_array: xr.DataArray,
                          ylim: tuple=(-90., 90.),
                          cmap: str='bwr',
                          figsize: tuple=(12, 8),
+		         ticks=np.linspace(-1,1,11),
                          cbarorient: str='horizontal') -> None:
     """
     Create contour plot
@@ -236,7 +237,7 @@ def plot_contour(data_array: xr.DataArray,
                   label= '',
                   extendrect=True,
                   extendfrac=True,
-                  ticks=np.linspace(-1, 1, 11),
+                  ticks=ticks,
                   spacing='uniform',
                   orientation =cbarorient,
                   drawedges=False,
