@@ -432,16 +432,19 @@ def average_wind(exp_path: Path='/home/alhafisu/project/experiments/kap41/4901-5
         return avg_var
 
     data = {}
+    # vmo: surface wind speed in m/s
+    # tax: surface stress east N/m2
+    # tay: surface stress north N/m2
     for vname in 'vmo', 'tax', 'tay':
         # find the file
         fn = glob.glob(exp_path / f's{vn}*.nc.gz')[0] # there should only be one
         # read the data and apply seasonal/yearly averaging
         data[vn] = get_data(filename, varname=vn, season=season, years=years)
 
-    # using Susan's expressions
     norm = np.sqrt(data['tax']**2 + data['tay']**2)
-    u = data['vmo'] * data['tax'] / norm
-    v = data['vmo'] * data['tax'] / norm
+    # https://en.wikipedia.org/wiki/Wind_stress
+    u = + data['vmo'] * data['tay'] / norm
+    v = - data['vmo'] * data['tax'] / norm
 
     return u, v
 
