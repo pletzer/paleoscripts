@@ -9,10 +9,10 @@ import matplotlib.colors as mcolors
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 import xskillscore as xs
 import pandas as pd
+from pathlib import Path
 
 
 def gridded_data_to_excel(data_array, file_name, lon_name='longitude', lat_name='latitude'):
@@ -268,6 +268,7 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
     :param xy_pts: 2d array of [(x,y), ..] points
     :param cooks_tol: Cook's distance tolerance, points that are cooks_tol/n distance 
                       away will be removed. A good value is about 4.
+    :returns a linear regression object with members intercept and slope
     """
 
     x, y = xy_pts[:, 0], xy_pts[:, 1]
@@ -284,9 +285,12 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
     # obtain Cook's distance for each observation
     cooks = influence.cooks_distance[0]
 
-    # remove the outliers 
+    # remove the outliers
     msk = (cooks > cooks_tol/len(x))
     xy_pts_filtered = xy_pts[~msk, :]
+    if xy_pts_filtered.shape[0] <= 1:
+        print(f'ERROR: cooks = {cooks} cooks_tol/len(x) = {cooks_tol/len(x)}, increase cooks_tol!')
+        raise RuntimeError(f'Not enough points ({xy_pts_filtered.shape[0]}) left for a linear regression')
 
     # recompute the linear regressioon coefficients without the outliers
     res = linregress(xy_pts_filtered)
@@ -295,7 +299,7 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
 
 def find_points_where_field_is_extreme(data_array: xr.DataArray,\
-				   extremum='max') -> np.ndarray:
+          extremum='max') -> np.ndarray:
     """
     Find the points where the field is either min or max
     :param data_array: instance of xarray.DataArray
@@ -408,3 +412,47 @@ def plot_linefit(data_array: xr.DataArray,
 
     return ax
 
+
+def average_wind(exp_path: Path='/home/alhafisu/project/experiments/kap41/4901-5000/',
+                 years=slice(4975, 5000), season='djf'):
+    """
+    Compute the yearly/seasonal average wind
+
+    :param experiment: top directory where the netcdf files reside
+    :param years: slice(start, end) years
+    :param season: e.g. 'djf'
+    :returns u, v wind components
+    """
+
+    def get_data(filename, varname, season, years):
+        ds = xr_open_dataset(filename)
+        var = getattr(ds, varname)
+        season_var = extract_season(var, season)
+        avg_var = season.sel(year=years)
+        return avg_var
+
+    data = {}
+    for vname in 'vmo', 'tax', 'tay':
+        # find the file
+        fn = glob.glob(exp_path / f's{vn}*.nc.gz')[0] # there should only be one
+        # read the data and apply seasonal/yearly averaging
+        data[vn] = get_data(filename, varname=vn, season=season, years=years)
+
+    # using Susan's expressions
+    norm = np.sqrt(data['tax']**2 + data['tay']**2)
+    u = data['vmo'] * data['tax'] / norm
+    v = data['vmo'] * data['tax'] / norm
+
+    return u, v
+
+
+
+def wind_anomaly(experiments=('/home/alhafisu/project/experiments/kap41', '/home/alhafisu/project/experiments/nhp41'),
+	       years=slice(4975, 5000), season='djf'):
+	"""
+	Compute the wind anomaly
+
+	:param experiments: 2-element tuple, each pointing to the top directory where the data reside
+	:param years: slice(start, end) years
+	:param season: e.g. 'djf'
+	"""
