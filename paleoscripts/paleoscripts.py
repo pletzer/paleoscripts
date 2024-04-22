@@ -442,9 +442,8 @@ def average_wind(exp_path: Path='/home/alhafisu/project/experiments/kap41/4901-5
         data[vn] = get_data(filename, varname=vn, season=season, years=years)
 
     norm = np.sqrt(data['tax']**2 + data['tay']**2)
-    # https://en.wikipedia.org/wiki/Wind_stress
-    u = + data['vmo'] * data['tay'] / norm
-    v = - data['vmo'] * data['tax'] / norm
+    u = data['vmo'] * data['tax'] / norm
+    v = data['vmo'] * data['tay'] / norm
 
     return u, v
 
@@ -459,3 +458,4 @@ def wind_anomaly(experiments=('/home/alhafisu/project/experiments/kap41', '/home
 	:param years: slice(start, end) years
 	:param season: e.g. 'djf'
 	"""
+	pass
