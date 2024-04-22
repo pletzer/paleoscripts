@@ -13,6 +13,7 @@ from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 import xskillscore as xs
 import pandas as pd
 from pathlib import Path
+import glob
 
 
 def gridded_data_to_excel(data_array, file_name, lon_name='longitude', lat_name='latitude'):
@@ -413,8 +414,8 @@ def plot_linefit(data_array: xr.DataArray,
     return ax
 
 
-def average_wind(exp_path: Path='/home/alhafisu/project/experiments/kap41/4901-5000/',
-                 years=slice(4975, 5000), season='djf'):
+def average_wind(exp_path: str='/home/alhafisu/project/experiments/ka241',
+                years=slice('4975','5000'), season='djf'):
     """
     Compute the yearly/seasonal average wind
 
@@ -424,22 +425,22 @@ def average_wind(exp_path: Path='/home/alhafisu/project/experiments/kap41/4901-5
     :returns u, v wind components
     """
 
-    def get_data(filename, varname, season, years):
-        ds = xr_open_dataset(filename)
+    def get_data(filenames, varname, season, years):
+        ds = xr.open_mfdataset(filenames)
         var = getattr(ds, varname)
         season_var = extract_season(var, season)
-        avg_var = season.sel(year=years)
+        avg_var = season_var.sel(year=years).mean(['month', 'year'], keep_attrs=True)
         return avg_var
 
     data = {}
     # vmo: surface wind speed in m/s
     # tax: surface stress east N/m2
     # tay: surface stress north N/m2
-    for vname in 'vmo', 'tax', 'tay':
+    for vn in 'vmo', 'tax', 'tay':
         # find the file
-        fn = glob.glob(exp_path / f's{vn}*.nc.gz')[0] # there should only be one
+        fns = glob.glob(exp_path + '/' + f'*/s{vn}*.nc.gz')
         # read the data and apply seasonal/yearly averaging
-        data[vn] = get_data(filename, varname=vn, season=season, years=years)
+        data[vn] = get_data(fns, varname=vn, season=season, years=years)
 
     norm = np.sqrt(data['tax']**2 + data['tay']**2)
     u = data['vmo'] * data['tax'] / norm
