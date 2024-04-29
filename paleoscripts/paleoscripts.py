@@ -414,49 +414,118 @@ def plot_linefit(data_array: xr.DataArray,
     return ax
 
 
-def average_wind(exp_path: str='/home/alhafisu/project/experiments/ka241',
-                years=slice('4975','5000'), season='djf'):
+def extract_across_runs(base_dir: str='/home/alhafisu/project/experiments',
+                           control: str='1hosv',
+                           experiment: str='hosv1',
+                           vars: tuple=('vmo', 'tax', 'tay'), 
+                           nyears_avg: int=25, start_year: int=5001, spinup_years: int=25, 
+                           season: str='djf'):
     """
-    Compute the yearly/seasonal average wind
-
-    :param experiment: top directory where the netcdf files reside
-    :param years: slice(start, end) years
-    :param season: e.g. 'djf'
-    :returns u, v wind components
+    Extract data across multiple runs, taking into account the staggering of start and end years
+    :param base_dir: base directory
+    :param control: name of the control experiment
+    :param experiment: name of the experiment to compare against the control
+    :param vars: list of variable names
+    :param nyears_avg: number of years to average
+    :param start_year: start year
+    :param spinup_years: number of years to remove due to spinning up the experiment
+    :param season: season, eg 'djf'
+    :returns a dictionary with keys [case][var][run], case is either control or experiment
     """
-
-    def get_data(filenames, varname, season, years):
-        ds = xr.open_mfdataset(filenames)
-        var = getattr(ds, varname)
-        season_var = extract_season(var, season)
-        avg_var = season_var.sel(year=years).mean(['month', 'year'], keep_attrs=True)
-        return avg_var
-
+    
+    # container to store the data
     data = {}
-    # vmo: surface wind speed in m/s
-    # tax: surface stress east N/m2
-    # tay: surface stress north N/m2
-    for vn in 'vmo', 'tax', 'tay':
-        # find the file
-        fns = glob.glob(exp_path + '/' + f'*/s{vn}*.nc.gz')
-        # read the data and apply seasonal/yearly averaging
-        data[vn] = get_data(fns, varname=vn, season=season, years=years)
+    
+    count_case = 0
+    for case in experiment, control:
+        
+        data[case] = {}
 
-    norm = np.sqrt(data['tax']**2 + data['tay']**2)
-    u = data['vmo'] * data['tax'] / norm
-    v = data['vmo'] * data['tay'] / norm
+        for var in vars:
+            
+            data[case][var] = {}
+            
+            beg_year = start_year + spinup_years
+            end_year = beg_year + nyears_avg
+            count = 0
+            # HARDCODING THE RUNS!!!!
+            for run in (0, 1, 2):
+                
+                filename = base_dir + '/' + case + f'/{run}' + f'/s{var}.nc.gz'                    
+                ds = xr.open_dataset(filename)
+                
+                season_values = extract_season(ds[var],'djf')
+                # mean over years
+                
+                beg_year = start_year + spinup_years + count*4*nyears_avg + 2*nyears_avg*count_case
+                end_year = beg_year + nyears_avg - 1
+                
+                print(f'case: {case} var: {var} run: {run} beg_year: {beg_year} end_year: {end_year}')
+                
+                season_values_mean = season_values.sel(year=slice(beg_year, end_year)).mean(['month', 'year'], keep_attrs=True)
+                
+                # store the result
+                data[case][var][run] = season_values_mean
+                
+                count += 1
+                
+        count_case += 1
+                
+    return data
 
-    return u, v
+def wind_anomaly(base_dir: str='/home/alhafisu/project/experiments',
+                 control: str='1hosv',
+                 experiment: str='hosv1',
+                 nyears_avg: int=25, start_year: int=5001, spinup_years: int=25, 
+                 season: str='djf'):
+    """
+    Compute the wind anomaly
+    :param base_dir: base directory
+    :param control: name of the control experiment
+    :param experiment: name of the experiment to compare against the control
+    :param nyears_avg: number of years to average
+    :param start_year: start year
+    :param spinup_years: number of years to remove due to spinning up the experiment
+    :param season: season, eg 'djf'
+    :returns u, v, anomalies (experiment - control)
+    """
+    
+    data = extract_across_runs(base_dir=base_dir, control=control, experiment=experiment,
+                           vars=('vmo', 'tax', 'tay'), nyears_avg=nyears_avg, start_year=start_year, spinup_years=spinup_years, 
+                           season=season)
+    
+    # average across runs
+    data_avg = {}
+    for case in data:
+        data_avg[case] = {}
+        for var in data[case]:
+            
+            # initialize to zero
+            data_avg[case][var] = 0 * data[case][var][0]
+            
+            # average
+            for run in data[case][var]:
+                data_avg[case][var] += data[case][var][run]
+            data_avg[case][var] /= len(data[case][var])
+                
+        # compute the u, v components, based on the formulas Steven provided
+        vmo = data_avg[case]['vmo']
+        tax = data_avg[case]['tax']
+        tay = data_avg[case]['tay']
+        norm = np.sqrt(tax**2 + tay**2)
+        u = vmo * tax / norm
+        v = vmo * tay / norm
+        
+        # store
+        data_avg[case]['u'] = u
+        data_avg[case]['v'] = v
+        
+    
+    # take the anomalies
+    delta_u = data_avg[experiment]['u'] - data_avg[control]['u']
+    delta_v = data_avg[experiment]['v'] - data_avg[control]['v']
+    
+    return delta_u, delta_v
 
 
 
-def wind_anomaly(experiments=('/home/alhafisu/project/experiments/kap41', '/home/alhafisu/project/experiments/nhp41'),
-	       years=slice(4975, 5000), season='djf'):
-	"""
-	Compute the wind anomaly
-
-	:param experiments: 2-element tuple, each pointing to the top directory where the data reside
-	:param years: slice(start, end) years
-	:param season: e.g. 'djf'
-	"""
-	pass
