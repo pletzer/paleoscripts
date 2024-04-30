@@ -437,7 +437,7 @@ def extract_across_runs(base_dir: str='/home/alhafisu/project/experiments',
     data = {}
     
     count_case = 0
-    for case in experiment, control:
+    for case in control, experiment:
         
         data[case] = {}
 
