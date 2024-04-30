@@ -522,8 +522,10 @@ def wind_anomaly(base_dir: str='/home/alhafisu/project/experiments',
         
     
     # take the anomalies
-    delta_u = data_avg[experiment]['u'] - data_avg[control]['u']
-    delta_v = data_avg[experiment]['v'] - data_avg[control]['v']
+    # delta_u = data_avg[experiment]['u'] - data_avg[control]['u']
+    # delta_v = data_avg[experiment]['v'] - data_avg[control]['v']
+    delta_u = data_avg[control]['u'] - data_avg[experiment]['u']
+    delta_v = data_avg[control]['v'] - data_avg[experiment]['v']
     
     return delta_u, delta_v
 
