@@ -408,3 +408,29 @@ def plot_linefit(data_array: xr.DataArray,
 
     return ax
 
+#New def find_points_where_field_is_extreme
+
+def find_points_where_field_is_extreme2(data_array: xr.DataArray,\
+          extremum='max') -> np.ndarray:
+    """
+    Find the points where the field is either min or max
+    :param data_array: instance of xarray.DataArray
+    :param extremum: either 'min' or 'max'
+    :returns a numpy array of [(lon, lat), ...] points
+    """
+    argextrem = np.argmax
+    if extremum == 'min':
+            argextrem = arg.argmin
+    lon = data_array.coords['lon'].data
+    lat = data_array.coords['lat'].data
+
+    xy_points = []
+    for lo in lon:
+        data = data_array.sel(lon=lo).data
+        j = argextrem(data)
+        xy_points.append( (lo, lat[j],) )
+
+    return np.array(xy_points)
+
+
+
