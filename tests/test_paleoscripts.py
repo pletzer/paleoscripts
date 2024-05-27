@@ -2,7 +2,8 @@
 
 """Tests for `paleoscripts` package."""
 
-
+import sys
+print(sys.executable)
 import pytest
 import paleoscripts
 import xarray as xr
@@ -60,6 +61,15 @@ def create_latlon_data(nlat, nlon):
 
 # Tests start here
 ##################
+
+def test_linear_regression_sklearn1():
+    x = [1, 2, 3]
+    y = [4, 5, 6]
+    res = paleoscripts.linear_regression_coeffs_sklearn(x, y, fit_intercept=False)
+    # intercept
+    assert abs(res['coef'][0] - 3.0) < 1.e-10
+    # slope
+    assert abs(res['coef'][1] - 1.0) < 1.e-10
 
 
 def test_gridded_data_to_excel():

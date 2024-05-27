@@ -293,6 +293,32 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
     return res
 
+def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: str=1, method: str='LinearRegression', **kw):
+    """
+    Perform a linear regression using Sklearn
+    :param x: x points
+    :param y: y points
+    :param poly_degree: degree of the polynomial
+    :param method: regression method, e.g. LinearRegression, Ridge, Huber, etc.
+    :param kw: additional keyword arguments to pass to the model's creator
+    """
+    import importlib
+    from sklearn.preprocessing import PolynomialFeatures
+    Model = getattr( importlib.import_module('sklearn.linear_model'), method )
+    # create the polynomial features
+    poly = PolynomialFeatures(degree=poly_degree)
+    Xpoly = poly.fit_transform(np.array(x).reshape(-1, 1))
+    # create the model and fit it
+    model = Model(**kw)
+    model.fit(Xpoly, y)
+    yreg = model.predict(Xpoly)
+    res = {'reg_points': np.array(list(zip(x, yreg))),
+           'MSE': np.mean((yreg - y)**2),
+           'coef': model.coef_,
+           'intercept': model.intercept_
+    }
+    return res
+
 
 def find_points_where_field_is_extreme(data_array: xr.DataArray,\
 				   extremum='max') -> np.ndarray:
