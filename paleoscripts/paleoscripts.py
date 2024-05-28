@@ -304,18 +304,36 @@ def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: str=
     """
     import importlib
     from sklearn.preprocessing import PolynomialFeatures
-    Model = getattr( importlib.import_module('sklearn.linear_model'), method )
+    
+    # normalize the input
+    xori = np.array(x)
+    xmin = min(xori)
+    xmax = max(xori)
+    
+    # make the feature run between 0 and 1
+    xnrm = (xori - xmin)/(xmax - xmin)
+    
     # create the polynomial features
     poly = PolynomialFeatures(degree=poly_degree)
-    Xpoly = poly.fit_transform(np.array(x).reshape(-1, 1))
+    Xpoly = poly.fit_transform(np.array(xnrm).reshape(-1, 1))
+    
+    # import the requested model
+    Model = getattr( importlib.import_module('sklearn.linear_model'), method )
+    
+    
     # create the model and fit it
-    model = Model(**kw)
+    model = Model(fit_intercept=False, **kw)
     model.fit(Xpoly, y)
     yreg = model.predict(Xpoly)
+    
+    # rescale the coefficient. Note we're using fit_intercept=False so
+    # coefficient [0] is the intercept and [1] the slope
+    linear_coef = model.coef_[1]/(xmax - xmin)   
+        
     res = {'reg_points': np.array(list(zip(x, yreg))),
            'MSE': np.mean((yreg - y)**2),
-           'coef': model.coef_,
-           'intercept': model.intercept_
+           'linear_coef': linear_coef,
+           'intercept': model.coef_[0] - linear_coef*xmin
     }
     return res
 
