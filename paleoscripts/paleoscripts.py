@@ -293,6 +293,50 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
     return res
 
+def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=1, method: str='LinearRegression', **kw):
+    """
+    Perform a linear regression using Sklearn
+    :param x: x points
+    :param y: y points
+    :param poly_degree: degree of the polynomial
+    :param method: regression method, e.g. LinearRegression, Ridge, Huber, etc.
+    :param kw: additional keyword arguments to pass to the model's creator
+    """
+    import importlib
+    from sklearn.preprocessing import PolynomialFeatures
+    
+    # normalize the input
+    xori = np.array(x)
+    xmin = min(xori)
+    xmax = max(xori)
+    
+    # make the feature run between 0 and 1
+    xnrm = (xori - xmin)/(xmax - xmin)
+    
+    # create the polynomial features
+    poly = PolynomialFeatures(degree=poly_degree)
+    Xpoly = poly.fit_transform(np.array(xnrm).reshape(-1, 1))
+    
+    # import the requested model
+    Model = getattr( importlib.import_module('sklearn.linear_model'), method )
+    
+    
+    # create the model and fit it
+    model = Model(fit_intercept=False, **kw)
+    model.fit(Xpoly, y)
+    yreg = model.predict(Xpoly)
+    
+    # rescale the coefficient. Note we're using fit_intercept=False so
+    # coefficient [0] is the intercept and [1] the slope
+    linear_coef = model.coef_[1]/(xmax - xmin)   
+        
+    res = {'reg_points': np.array(list(zip(x, yreg))),
+           'MSE': np.mean((yreg - y)**2),
+           'linear_coef': linear_coef,
+           'intercept': model.coef_[0] - linear_coef*xmin
+    }
+    return res
+
 
 def find_points_where_field_is_extreme(data_array: xr.DataArray,\
 				   extremum='max') -> np.ndarray:
