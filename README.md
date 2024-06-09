@@ -2,7 +2,7 @@
 
 A python module that contains a collection of postprocessing scripts
 
-![paleoscripts tests](https://github.com/pletzer/paleoscripts/actions/workflowspython-app.yml/badge.svg)
+![paleoscripts tests](https://github.com/pletzer/paleoscripts/actions/workflows/python-app.yml/badge.svg)
 
 ## How to access the source code
 
