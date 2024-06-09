@@ -82,6 +82,7 @@ def test_linear_regression_sklearn2():
     assert abs(res['linear_coef'] - (-0.01)) < 1.e-3
 
 
+
 def test_gridded_data_to_excel():
     da = create_latlon_data(4, 8)
     paleoscripts.gridded_data_to_excel(da, 'fake_data.xlsx')

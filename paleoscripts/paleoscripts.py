@@ -293,7 +293,7 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
     return res
 
-def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: str=1, method: str='LinearRegression', **kw):
+def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=1, method: str='LinearRegression', **kw):
     """
     Perform a linear regression using Sklearn
     :param x: x points
