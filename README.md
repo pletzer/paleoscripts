@@ -2,6 +2,8 @@
 
 A python module that contains a collection of postprocessing scripts
 
+![paleoscripts tests](https://github.com/pletzer/paleoscripts/actions/workflowspython-app.yml/badge.svg)
+
 ## How to access the source code
 
 In a terminal, type
