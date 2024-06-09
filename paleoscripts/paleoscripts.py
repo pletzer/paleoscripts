@@ -339,18 +339,21 @@ def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=
 
 
 def find_points_where_field_is_extreme(data_array: xr.DataArray,\
-				   extremum='max') -> np.ndarray:
+				   extremum='max', 
+                   lon_name='longitude', lat_name='latitude') -> np.ndarray:
     """
     Find the points where the field is either min or max
     :param data_array: instance of xarray.DataArray
     :param extremum: either 'min' or 'max'
+    :param lon_name: name of the longitude coordinate
+    :param lat_name: name of the latitude coordinate
     :returns a numpy array of [(lon, lat), ...] points
     """
     argextrem = np.argmax
     if extremum == 'min':
-	    argextrem = arg.argmin
-    lon = data_array.coords['longitude'].data
-    lat = data_array.coords['latitude'].data
+        argextrem = np.argmin
+    lon = data_array.coords[lon_name].data
+    lat = data_array.coords[lat_name].data
 
     xy_points = []
     for lo in lon:
