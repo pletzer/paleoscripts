@@ -293,7 +293,8 @@ def linear_regression_coeffs(xy_pts: np.ndarray,
 
     return res
 
-def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=1, method: str='LinearRegression', **kw):
+def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=1, 
+                                     method: str='LinearRegression', **kw) -> dict:
     """
     Perform a linear regression using Sklearn
     :param x: x points
@@ -301,6 +302,7 @@ def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=
     :param poly_degree: degree of the polynomial
     :param method: regression method, e.g. LinearRegression, Ridge, Huber, etc.
     :param kw: additional keyword arguments to pass to the model's creator
+    :returns a dictionary with entries 'linear_coef', 'intercept' and others
     """
     import importlib
     from sklearn.preprocessing import PolynomialFeatures
