@@ -38,18 +38,14 @@ def area_weighted_average(data_array: xr.DataArray,
                           xlim: tuple=(0., 360.), ylim: tuple=(-90., 90),
                           nx1: int=101, ny1: int=101) -> xr.DataArray:
     """
-    Compute the area weighted average of a (time, latitude, longitude) field
+    Compute the area weighted average of a (time, latitude, longitude) or (latitude, longitude) field
     :param data_array: field
     :param xlim: tuple of (min, max) longitudes of the box
     :param ylim: tuple of (min, max) latitudes of the box
     :param nx1: number of target interpolation longitude points in longitudes
     :param ny1: number of target interpolation longitude points in latitudes
+    :returns the area averaged value of the field 
     """
-
-    nt = data_array.shape[0] # first index is time axis
-
-    # the resulting array
-    res = np.empty((nt,), data_array.dtype)
 
     # the target coordinates
     xs = np.linspace(xlim[0], xlim[1], nx1)
@@ -62,12 +58,24 @@ def area_weighted_average(data_array: xr.DataArray,
     area = np.tile(np.cos(xs * np.pi/180), (ys.shape[0], 1))
     total_area = area.sum()
 
-    # first axis is assumed to be time-like
-    for itime in range(nt):
-        res[itime] = (data[itime, ...] * area).sum()/total_area
+    if len(data_array.shape) == 2:
+        res = (data * area).sum()/total_area
+        return res
+    
+    elif len(data_array.shape) == 3:
+        
+        nt = data_array.shape[0] # first index is time axis
+        # the resulting array
+        res = np.empty((nt,), data_array.dtype)
 
-    dim_name = data_array.dims[0]
-    return xr.DataArray(res, dims=(dim_name,), coords=[data_array.coords[dim_name]])
+        # first axis is assumed to be time-like
+        for itime in range(nt):
+            res[itime] = (data[itime, ...] * area).sum()/total_area
+
+        dim_name = data_array.dims[0]
+        return xr.DataArray(res, dims=(dim_name,), coords=[data_array.coords[dim_name]])
+    else:
+        raise RuntimeError('array must be lat, lon or time, lat, lon')
 
 
 
@@ -110,7 +118,7 @@ def correlation(data_array1, xlim, ylim, data_array2, dim='year'):
     :returns an array of the same size as data_array2 representing the Pearson coefficient in the range -1 to 1
     """
     # compute the area weighted average over the box
-    return pearson_r(data_array2, xlim, ylim, data_array2, dim=dim)
+    return pearson_r(data_array1, xlim, ylim, data_array2, dim=dim)
 
 
 def rain_colormap(n = 32):

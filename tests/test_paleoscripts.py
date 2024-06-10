@@ -100,6 +100,17 @@ def test_area_weighted_average():
     assert da_weighted.max() <= da.max()
 
 
+def test_area_weighted_average2():
+
+    nlat, nlon = 6, 12
+    da = create_latlon_data(nlat, nlon)
+    xlim = (10., 30.)
+    ylim = (50., 80.)
+    da_weighted = paleoscripts.area_weighted_average(da, xlim=xlim, ylim=ylim, nx1=11, ny1=21)
+    assert da_weighted.min() >= da.min()
+    assert da_weighted.max() <= da.max()
+
+
 def test_correlation():
 
     nlat, nlon = 6, 12
