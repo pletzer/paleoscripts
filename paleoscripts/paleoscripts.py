@@ -335,7 +335,8 @@ def linear_regression_coeffs_sklearn(x: np.array, y: np.array, poly_degree: int=
     res = {'reg_points': np.array(list(zip(x, yreg))),
            'MSE': np.mean((yreg - y)**2),
            'linear_coef': linear_coef,
-           'intercept': model.coef_[0] - linear_coef*xmin
+           'intercept': model.coef_[0] - linear_coef*xmin,
+           'ypredict': yreg,
     }
     return res
 
