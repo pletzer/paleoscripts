@@ -540,10 +540,14 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
     
     # create the DataArray and return it
-    return xr.DataArray(data=psi, dims=('pressure_hPa', 'latitude'), \
-        coords={'pressure_hPa': pressures[1:].flip(), # first value corresponds to the integral from index 0 -> 1
+    psia = xr.DataArray(data=psi, dims=('pressure', 'latitude'), \
+        coords={'pressure': np.flip(pressures[1:]), # first value corresponds to the integral from index 0 -> 1
                 'latitude': lat,
                 }
     )
+    psia.coords['pressure'].attrs['units'] = 'hPa'
+    psia.coords['latitude'].attrs['units'] = 'degree north'
+    
+    return psia
 
 
