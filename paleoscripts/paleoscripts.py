@@ -534,7 +534,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
         v_mid[i, ...] *= dp[i]
     
     # integrate over levels, starting from the top and going downwards
-    integral = np.cumsum( v_mid, axis=0 )
+    integral = np.cumsum( v_mid, axis=0, dtype=float )
     
     # Hadley strengh index, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
     psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
