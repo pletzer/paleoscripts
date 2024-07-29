@@ -9,6 +9,10 @@ import paleoscripts
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
+import glob
+from pathlib import Path
+
+DATA_DIR = Path(__file__).absolute().parent.parent / Path('data')
 
 
 # Convenience functions used by some tests
@@ -255,7 +259,9 @@ def test_extract_season():
         da_season = paleoscripts.extract_season(da, season=season)
         assert da_season.shape[0] == 3
 
-
+def test_hadley_cell():
+    fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
+    psi = paleoscripts.hadley_cell(fnames, season='djf')
     
 
 

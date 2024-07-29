@@ -482,6 +482,8 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     
     filenames.sort()
     
+    lat = None
+    
     # get the pressure levels and the meridional velocity
     pressures = np.zeros((len(filenames),), float)
     v_wind = []
@@ -503,7 +505,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
         if not hasattr(ds[vname], 'long_name'):
             raise RuntimeError(f'ERROR: variable {ds[vname]} must have a long_name attribute')
         
-        m = re.search(r'Meridional wind at pressure\=(\d+\.\d+)', ds[vname].long_name)
+        m = re.search(r'Meridional wind at pressure\s*\=\s*(\d+\.\d+)', ds[vname].long_name)
         if m:
             pressure_value = float(m.group(1)) # in hPa or mbar
         else:
@@ -511,24 +513,28 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
         
         pressures[int(level) - 1] = pressure_value
         
-        vmean_level = extract_season(ds[vname], season).mean(dims=['longitude', 'year'])
+        vmean_level = extract_season(ds[vname], season).mean(dim=['longitude', 'year'])
         v_wind.append(vmean_level)
+        
+        lat = ds.latitude.data
     
     # from the top of the atmosphere downwards
     pressures = np.flip(pressures)
-    v_wind.reverse()
+    v_wind = np.flip( np.array(v_wind), axis=0 )
     
     # compute dp from one level to the next
     dp = pressures[1:] - pressures[:-1]
+    # create a dp array with the same shape as the velocity field
+    dpa = np.empty([len(dp)] + list(v_wind.shape[1:]), float)
+    for i in range(len(dp)):
+        dpa[i, ...] = dp[i]
     
     # compute the wind at mid pressure levels
-    v_mid = 0.5*(v_wind[1:] + v_wind[:-1])
+    v_mid = 0.5*(v_wind[1:, ...] + v_wind[:-1, ...])
     
     # integrate over levels, starting from the top and going downwards
-    integral = np.cumsum( np.array(v_mid), axis=0 ) * dp
+    integral = np.cumsum( v_mid, axis=0 ) * dpa
     
-    lat = ds.latitude
-
     # Hadley strengh index, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
     psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
     
