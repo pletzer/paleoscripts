@@ -524,16 +524,16 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     
     # compute dp from one level to the next
     dp = pressures[1:] - pressures[:-1]
-    # create a dp array with the same shape as the velocity field
-    dpa = np.empty([len(dp)] + list(v_wind.shape[1:]), float)
-    for i in range(len(dp)):
-        dpa[i, ...] = dp[i]
     
     # compute the wind at mid pressure levels
     v_mid = 0.5*(v_wind[1:, ...] + v_wind[:-1, ...])
     
+    # multiply wind by dp
+    for i in range(len(dp)):
+        v_mid[i, ...] *= dp[i]
+    
     # integrate over levels, starting from the top and going downwards
-    integral = np.cumsum( v_mid, axis=0 ) * dpa
+    integral = np.cumsum( v_mid, axis=0 )
     
     # Hadley strengh index, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
     psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
