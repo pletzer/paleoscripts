@@ -541,7 +541,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     
     # create the DataArray and return it
     return xr.DataArray(data=psi, dims=('pressure_hPa', 'latitude'), \
-        coords={'pressure_hPa': pressures[1:], # first value corresponds to the integral from index 0 -> 1
+        coords={'pressure_hPa': pressures[1:].flip(), # first value corresponds to the integral from index 0 -> 1
                 'latitude': lat,
                 }
     )
