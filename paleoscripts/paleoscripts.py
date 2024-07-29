@@ -13,6 +13,8 @@ import geocat.viz as gv
 from cartopy.mpl.gridliner import LongitudeFormatter, LatitudeFormatter
 import xskillscore as xs
 import pandas as pd
+import re
+import os
 
 
 def gridded_data_to_excel(data_array, file_name, lon_name='longitude', lat_name='latitude'):
@@ -466,6 +468,70 @@ def plot_linefit(data_array: xr.DataArray,
 
     return ax
 
+def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.8):
+    """
+    Compute the Hadley cell
+    :param filenames: list of file name paths containing the meridional velocity for each elevation, 
+                      e.g. ["sv01_hosv1.nc.gz", "sv02_hosv1.nc.gz", ...]
+    :param season: string, eg. 'djf'
+    :param aradius: earth's radius in m
+    :param g: gravitional acceleration in m/s^2
+    """
+    
+    # May need to specify the years taken for the evaluation (TO DO)
+    
+    filenames.sort()
+    
+    # get the pressure levels and the meridional velocity
+    pressures = np.zeros((len(filenames),), float)
+    v_wind = []
+    for fl in filenames:
+        
+        # extract the level
+        bfl = os.path.basename(fl)
+        m = re.search(r'sv(\d+)\_', bfl)
+        level = -1
+        if m:
+            level = m.group(1)
+        else:
+            raise RuntimeError(f'ERROR: could not infer the pressure level from file name {bfl}')
+        
+        # extract the long_name of the variable v<level>
+        ds = xr.open_dataset(fl)
+        vname = 'v' + level
+        
+        if not hasattr(ds[vname], 'long_name'):
+            raise RuntimeError(f'ERROR: variable {ds[vname]} must have a long_name attribute')
+        
+        m = re.search(r'Meridional wind at pressure\=(\d+\.\d+)', ds[vname].long_name)
+        if m:
+            pressure_value = float(m.group(1)) # in hPa or mbar
+        else:
+            raise RuntimeError(f'ERROR: could not infer the pressure value from {ds[vname].long_name}')
+        
+        pressures[int(level) - 1] = pressure_value
+        
+        vmean_level = extract_season(ds[vname], season).mean(dims=['longitude', 'year'])
+        v_wind.append(vmean_level)
+    
+    # from the top of the atmosphere downwards
+    pressures = np.flip(pressures)
+    v_wind.reverse()
+    
+    # compute dp from one level to the next
+    dp = pressures[1:] - pressures[:-1]
+    
+    # compute the wind at mid pressure levels
+    v_mid = 0.5*(v_wind[1:] + v_wind[:-1])
+    
+    # integrate over levels, starting from the top and going downwards
+    integral = np.cumsum( np.array(v_mid), axis=0 ) * dp
+    
+    lat = ds.latitude
 
+    # Hadley strengh index, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
+    psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
+    
+    return psi
 
 
