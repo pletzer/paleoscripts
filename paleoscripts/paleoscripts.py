@@ -513,7 +513,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
         
         pressures[int(level) - 1] = pressure_value
         
-        vmean_level = extract_season(ds[vname], season).mean(dim=['longitude', 'year'])
+        vmean_level = extract_season(ds[vname], season).mean(dim=['longitude', 'year', 'month'])
         v_wind.append(vmean_level)
         
         lat = ds.latitude.data

@@ -262,6 +262,7 @@ def test_extract_season():
 def test_hadley_cell():
     fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
     psi = paleoscripts.hadley_cell(fnames, season='djf')
+    assert len(psi.shape) == 2
     
 
 
