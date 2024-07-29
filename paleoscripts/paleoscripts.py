@@ -15,6 +15,7 @@ import xskillscore as xs
 import pandas as pd
 import re
 import os
+import time
 
 
 def gridded_data_to_excel(data_array, file_name, lon_name='longitude', lat_name='latitude'):
@@ -529,14 +530,14 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     # compute the wind at mid pressure levels
     v_mid = 0.5*(v_wind[1:, ...] + v_wind[:-1, ...])
     
-    # multiply wind by dp
+    # multiply wind by dp over each level
     for i in range(len(dp)):
         v_mid[i, ...] *= dp[i]
     
     # integrate over levels, starting from the top and going downwards
     integral = np.cumsum( v_mid, axis=0, dtype=float )
     
-    # Hadley strengh index, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
+    # Hadley circulation, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
     psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
     
     # create the DataArray and return it
@@ -547,6 +548,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     )
     psia.coords['pressure'].attrs['units'] = 'hPa'
     psia.coords['latitude'].attrs['units'] = 'degree north'
+    psia.attrs['history'] = 'Produced by paleoscripts.hadley_cell on {time.asctime()}'
     
     return psia
 
