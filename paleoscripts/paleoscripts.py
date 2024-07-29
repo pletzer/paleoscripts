@@ -468,7 +468,7 @@ def plot_linefit(data_array: xr.DataArray,
 
     return ax
 
-def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.8):
+def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.8) -> xr.DataArray:
     """
     Compute the Hadley cell
     :param filenames: list of file name paths containing the meridional velocity for each elevation, 
@@ -476,6 +476,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     :param season: string, eg. 'djf'
     :param aradius: earth's radius in m
     :param g: gravitional acceleration in m/s^2
+    :returns an xarray DataArray with pressure levels and latitudes as axes
     """
     
     # May need to specify the years taken for the evaluation (TO DO)
@@ -538,6 +539,11 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     # Hadley strengh index, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
     psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
     
-    return psi
+    # create the DataArray and return it
+    return xr.DataArray(data=psi, dims=('pressure_hPa', 'latitude'), \
+        coords={'pressure_hPa': pressures[1:], # first value corresponds to the integral from index 0 -> 1
+                'latitude': lat,
+                }
+    )
 
 
