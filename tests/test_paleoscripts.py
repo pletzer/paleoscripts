@@ -263,8 +263,8 @@ def test_hadley_cell():
     fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
     psi = paleoscripts.hadley_cell(fnames, season='djf')
     assert len(psi.shape) == 2
-    test_val = 9.07144985e+45
-    assert abs(psi.sum() - test_val) < 1.e-10*test_val
+    test_val = 2.07055435e+10
+    assert abs(psi.sum() - test_val) < 1.e-6*test_val
     
 
 

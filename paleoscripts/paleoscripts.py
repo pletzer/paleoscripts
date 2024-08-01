@@ -469,24 +469,11 @@ def plot_linefit(data_array: xr.DataArray,
 
     return ax
 
-def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.8) -> xr.DataArray:
-    """
-    Compute the Hadley cell
-    :param filenames: list of file name paths containing the meridional velocity for each elevation, 
-                      e.g. ["sv01_hosv1.nc.gz", "sv02_hosv1.nc.gz", ...]
-    :param season: string, eg. 'djf'
-    :param aradius: earth's radius in m
-    :param g: gravitional acceleration in m/s^2
-    :returns an xarray DataArray with pressure levels and latitudes as axes
-    """
-    
-    # May need to specify the years taken for the evaluation (TO DO)
+
+def extract_wind_at_pressure_levels(filenames: list, season: str, max_wind=1000.) -> np.ndarray:
     
     filenames.sort()
-    
     lat = None
-    
-    # get the pressure levels and the meridional velocity
     pressures = np.zeros((len(filenames),), float)
     v_wind = []
     for fl in filenames:
@@ -507,7 +494,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
         if not hasattr(ds[vname], 'long_name'):
             raise RuntimeError(f'ERROR: variable {ds[vname]} must have a long_name attribute')
         
-        m = re.search(r'Meridional wind at pressure\s*\=\s*(\d+\.\d+)', ds[vname].long_name)
+        m = re.search(r'wind at pressure\s*\=\s*(\d+\.\d+)', ds[vname].long_name)
         if m:
             pressure_value = float(m.group(1)) # in hPa or mbar
         else:
@@ -515,40 +502,69 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
         
         pressures[int(level) - 1] = pressure_value
         
-        vmean_level = extract_season(ds[vname], season).mean(dim=['longitude', 'year', 'month'])
+        # mask out invalid values
+        v = (np.fabs(ds[vname]) < max_wind) * ds[vname]
+        
+        v = extract_season(v, season)
+        
+        vmean_level = v.mean(dim=['longitude', 'month', 'year'])
+
         v_wind.append(vmean_level)
         
         lat = ds.latitude.data
+        
+    return np.array(v_wind), pressures, lat
+   
     
+
+def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.8) -> xr.DataArray:
+    """
+    Compute the Hadley cell
+    :param filenames: list of file name paths containing the meridional velocity for each elevation, 
+                      e.g. ["sv01_hosv1.nc.gz", "sv02_hosv1.nc.gz", ...]
+    :param season: string, eg. 'djf'
+    :param aradius: earth's radius in m
+    :param g: gravitional acceleration in m/s^2
+    :returns an xarray DataArray with pressure levels and latitudes as axes
+    """
+    
+    # May need to specify the years taken for the evaluation (TO DO)
+    
+    v_wind, pressures, lat = extract_wind_at_pressure_levels(filenames, season=season)
+        
     # from the top of the atmosphere downwards
     pressures = np.flip(pressures)
-    v_wind = np.flip( np.array(v_wind), axis=0 )
+    v_wind = np.flip(v_wind, axis=0 )
     
     # compute dp from one level to the next
     dp = pressures[1:] - pressures[:-1]
     
     # compute the wind at mid pressure levels
-    v_mid = 0.5*(v_wind[1:, ...] + v_wind[:-1, ...])
+    v_mid = 0.5*(v_wind[1:, :] + v_wind[:-1, :])
     
-    # multiply wind by dp over each level
+    # multiply wind by dp over each vertical interval
     for i in range(len(dp)):
-        v_mid[i, ...] *= dp[i]
+        v_mid[i, :] *= dp[i]
     
     # integrate over levels, starting from the top and going downwards
     integral = np.cumsum( v_mid, axis=0, dtype=float )
     
-    # Hadley circulation, Equ(1) in https://wcd.copernicus.org/articles/3/625/2022/
-    psi = (2 * np.pi * aradius * np.cos(lat*np.pi/180.) / g) * integral
+    psi = np.empty(integral.shape, integral.dtype)
+    
+    # Hadley circulation, Eq(1) in https://wcd.copernicus.org/articles/3/625/2022/
+    for j in range(len(lat)):
+        psi[:, j] = (2 * np.pi * aradius * np.cos(lat[j]*np.pi/180.) / g) * integral[:, j]
+
     
     # create the DataArray and return it
     psia = xr.DataArray(data=psi, dims=('pressure', 'latitude'), \
-        coords={'pressure': np.flip(pressures[1:]), # first value corresponds to the integral from index 0 -> 1
+        coords={'pressure': pressures[1:],
                 'latitude': lat,
                 }
     )
     psia.coords['pressure'].attrs['units'] = 'hPa'
     psia.coords['latitude'].attrs['units'] = 'degree north'
-    psia.attrs['history'] = 'Produced by paleoscripts.hadley_cell on {time.asctime()}'
+    psia.attrs['history'] = f'Produced by paleoscripts.hadley_cell on {time.asctime()}'
     
     return psia
 
