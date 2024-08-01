@@ -558,7 +558,7 @@ def hadley_cell(filenames: list, season: str, aradius: float=6371e3, g: float=9.
     
     # create the DataArray and return it
     psia = xr.DataArray(data=psi, dims=('pressure', 'latitude'), \
-        coords={'pressure': pressures[1:],
+        coords={'pressure': pressures[1:], # pressures are boundary values
                 'latitude': lat,
                 }
     )

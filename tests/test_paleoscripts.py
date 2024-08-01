@@ -266,7 +266,11 @@ def test_hadley_cell():
     test_val = 2.07055435e+10
     assert abs(psi.sum() - test_val) < 1.e-6*test_val
     
-
+    import matplotlib.pyplot as plt
+    import xarray as xr
+    xr.plot.contourf(psi)
+    plt.gca().invert_yaxis()
+    plt.savefig('hadley_cell.png')
 
 
 
