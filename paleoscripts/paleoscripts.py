@@ -371,7 +371,7 @@ def find_points_where_field_is_extreme(data_array: xr.DataArray,\
 
     xy_points = []
     for lo in lon:
-        data = data_array.sel(longitude=lo).data
+        data = data_array.sel({lon_name: lo}).data
         j = argextrem(data)
         xy_points.append( (lo, lat[j],) )
     
