@@ -536,19 +536,17 @@ def hadley_cell(filenames: list, season: str='djf', last_years=None, aradius: fl
     :returns an xarray DataArray with pressure levels and latitudes as axes
     """
     
-    # May need to specify the years taken for the evaluation (TO DO)
-    
     v_wind, pressures, lat = extract_wind_at_pressure_levels(filenames, season=season, last_years=last_years)
         
     # from the top of the atmosphere downwards
     pressures = np.flip(pressures)
-    v_wind = np.flip(v_wind, axis=0 )
+    v_wind = np.flip(v_wind, axis=0) # CHECK that pressure is the first axis
     
     # compute dp from one level to the next
     dp = pressures[1:] - pressures[:-1]
     
     # compute the wind at mid pressure levels
-    v_mid = 0.5*(v_wind[1:, :] + v_wind[:-1, :])
+    v_mid = 0.5*(v_wind[1:, :] + v_wind[:-1, :]) # pressure is axis 0
     
     # multiply wind by dp over each vertical interval
     for i in range(len(dp)):
