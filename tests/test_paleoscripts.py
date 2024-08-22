@@ -63,6 +63,30 @@ def create_latlon_data(nlat, nlon):
     return da
 
 
+def create_latlon_data_curvilinear(nlat, nlon):
+    nlat1, nlon1 = nlat + 1, nlon + 1
+
+    # create a data array with lat-lon cooordinates
+    lat = np.linspace(-90., 90, nlat1)
+
+    # create a lon coordinate, the last value (ie 360 deg) is missing
+    dlon = 360/nlon
+    lon = np.linspace(0., 360 - dlon, nlon)
+
+    # create some data
+    xx, yy = np.meshgrid(lon, lat)
+
+    data = (np.sin((xx - 48)*np.pi/180.) * np.cos((yy - 0.05*xx)*np.pi/180.))**2
+
+
+    da = xr.DataArray(data,
+                      coords={'latitude': (['y', 'x'], yy),
+                              'longitude': (['y', 'x'], xx)},
+                      dims=['y', 'x'], name='fake_data')
+
+    return da
+
+
 # Tests start here
 ##################
 
@@ -169,6 +193,16 @@ def test_apply_cyclic_padding():
     x_da = paleoscripts.apply_cyclic_padding(da)
 
     assert np.all(x_da[..., 0] == x_da[..., -1])
+
+@pytest.mark.xfail()
+def test_apply_cyclic_padding_curvilinear():
+
+    nlat, nlon = 3, 4
+    da = create_latlon_data_curvilinear(nlat, nlon)
+    # expected to fail
+    x_da = paleoscripts.apply_cyclic_padding(da)
+
+
 
 
 def test_plot_contour():

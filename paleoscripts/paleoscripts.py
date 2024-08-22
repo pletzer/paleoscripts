@@ -148,6 +148,12 @@ def apply_cyclic_padding(data_array: xr.DataArray, coord_name: str='longitude', 
     :returns a new DataArray with an additional row, containing the first row values
     """
 
+    # only supported for rectilinear coordinates
+    nd = len(data_array.coords[coord_name].dims)
+    if nd > 1:
+        msg = f'Not a rectilinear grids, coordinate {coord_name} has {nd} dimensions (should have 1)'
+        raise RuntimeError(msg)
+
     # find the index of the coordinate
     index_coord = data_array.dims.index(coord_name)
 
