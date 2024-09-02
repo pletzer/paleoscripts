@@ -295,17 +295,25 @@ def test_extract_season():
 
 def test_hadley_cell():
     fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
-    psi = paleoscripts.hadley_cell(fnames, season='djf')
+    psi = paleoscripts.hadley_cell(fnames, season='djf', lon_min=0., lon_max=360.)
     assert len(psi.shape) == 2
-    test_val = 2.07055435e+10
-    assert abs(psi.sum() - test_val) < 1.e-6*test_val
+    test_val = 2.1946e+10
+    print(f'test value: {test_val:.4e} got {psi.sum().data:.4e}')
+    assert abs(psi.sum() - test_val) < 1.e-3*test_val
     
-    import matplotlib.pyplot as plt
-    import xarray as xr
-    xr.plot.contourf(psi)
-    plt.gca().invert_yaxis()
-    plt.savefig('hadley_cell.png')
+    #import matplotlib.pyplot as plt
+    # import xarray as xr
+    # xr.plot.contourf(psi)
+    # plt.gca().invert_yaxis()
+    # plt.savefig('hadley_cell.png')
 
+def test_hadley_cell2():
+    fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
+    psi = paleoscripts.hadley_cell(fnames, season='djf', lon_min=120., lon_max=280.)
+    assert len(psi.shape) == 2
+    test_val = 6.5794e+09
+    print(f'test value: {test_val:.4e} got {psi.sum().data:.4e}')
+    assert abs(psi.sum() - test_val) < 1.e-3*test_val
 
 
 

@@ -476,7 +476,12 @@ def plot_linefit(data_array: xr.DataArray,
     return ax
 
 
-def extract_wind_at_pressure_levels(filenames: list, season: str, last_years, max_wind=1000.) -> np.ndarray:
+def extract_wind_at_pressure_levels(filenames: list, season: str, last_years, lon_min, lon_max, max_wind=1000.) -> np.ndarray:
+
+    # longitude resolution
+    dlon = 1.0
+    nlon = int( (lon_max - lon_min) / dlon )
+    lon_vals = np.linspace(lon_min - dlon/2., lon_max + dlon/2., nlon)
     
     filenames.sort()
     lat = None
@@ -510,6 +515,12 @@ def extract_wind_at_pressure_levels(filenames: list, season: str, last_years, ma
         
         # mask out invalid values
         v = (np.fabs(ds[vname]) < max_wind) * ds[vname]
+
+        v = apply_cyclic_padding(v, coord_name='longitude', period=360.0)
+
+        # select values in lon_min, lon_max interval
+        v = v.interp(longitude=lon_vals, method='cubic')
+        #v = v.sel(longitude=lon_vals, method='nearest')
         
         v = extract_season(v, season)
         
@@ -530,19 +541,25 @@ def extract_wind_at_pressure_levels(filenames: list, season: str, last_years, ma
    
     
 
-def hadley_cell(filenames: list, season: str='djf', last_years=None, aradius: float=6371e3, g: float=9.8) -> xr.DataArray:
+def hadley_cell(filenames: list, season: str='djf', last_years=None,
+                lon_min: float=120., lon_max:float=280., 
+                aradius: float=6371e3, g: float=9.8) -> xr.DataArray:
     """
     Compute the Hadley cell
     :param filenames: list of file name paths containing the meridional velocity for each elevation, 
                       e.g. ["sv01_hosv1.nc.gz", "sv02_hosv1.nc.gz", ...]
     :param season: string, eg. 'djf'
     :param last_years: last number of years (None if taking all the years)
+    :param lon_min: min longitude
+    :param lan_max: max longitude
     :param aradius: earth's radius in m
     :param g: gravitional acceleration in m/s^2
     :returns an xarray DataArray with pressure levels and latitudes as axes
     """
     
-    v_wind, pressures, lat = extract_wind_at_pressure_levels(filenames, season=season, last_years=last_years)
+    v_wind, pressures, lat = extract_wind_at_pressure_levels(filenames, season=season,
+                                                             last_years=last_years,
+                                                             lon_min=lon_min, lon_max=lon_max)
         
     # from the top of the atmosphere downwards
     pressures = np.flip(pressures)
