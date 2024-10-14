@@ -516,7 +516,9 @@ def extract_v_wind_at_pressure_levels(filenames: list, season: str, last_years, 
         # mask out invalid values
         v = (np.fabs(ds[vname]) < max_wind) * ds[vname]
 
-        v = apply_cyclic_padding(v, coord_name='longitude', period=360.0)
+        # I don't think we should apply periodic BCs as this would cause
+        # the start /end points to be represented twice when computing the mean
+        #v = apply_cyclic_padding(v, coord_name='longitude', period=360.0)
 
         # select values in lon_min, lon_max interval
         v = v.interp(longitude=lon_vals, method='cubic')
@@ -535,7 +537,7 @@ def extract_v_wind_at_pressure_levels(filenames: list, season: str, last_years, 
 
         v_wind.append(vmean_level)
         
-        lat = ds.latitude.data
+        lat = v.latitude.data
         
     return np.array(v_wind), pressures, lat
    
@@ -580,8 +582,7 @@ def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, 
         # mask out invalid values
         u = (np.fabs(ds[uname]) < max_wind) * ds[uname]
 
-        # I don't think we need this here...
-        #u = apply_cyclic_padding(u, coord_name='longitude', period=360.0)
+        u = apply_cyclic_padding(u, coord_name='longitude', period=360.0)
 
         # select values in lat_min, lat_max interval
         u = u.interp(latitude=lat_vals, method='cubic')
@@ -599,7 +600,7 @@ def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, 
 
         u_wind.append(umean_level)
         
-        lon = ds.longitude.data
+        lon = u.longitude.data
         
     return np.array(u_wind), pressures, lon
 
