@@ -476,7 +476,7 @@ def plot_linefit(data_array: xr.DataArray,
     return ax
 
 
-def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, lon_min, lon_max, max_wind=1000.) -> np.ndarray:
+def extract_v_wind_at_pressure_levels(filenames: list, season: str, last_years, lon_min, lon_max, max_wind=1000.) -> np.ndarray:
 
     # longitude resolution
     dlon = 1.0
@@ -539,7 +539,69 @@ def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, 
         
     return np.array(v_wind), pressures, lat
    
+
+def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, lat_min, lat_max, max_wind=1000.) -> np.ndarray:
+
+    # latitude resolution
+    dlat = 1.0
+    nlat = int( (lat_max - lat_min) / dlat )
+    lat_vals = np.linspace(lat_min - dlat/2., lat_max + dlat/2., nlat)
     
+    filenames.sort()
+    lat = None
+    pressures = np.zeros((len(filenames),), float)
+    u_wind = []
+    for fl in filenames:
+        
+        # extract the level
+        bfl = os.path.basename(fl)
+        m = re.search(r'su(\d+)\_', bfl)
+        level = -1
+        if m:
+            level = m.group(1)
+        else:
+            raise RuntimeError(f'ERROR: could not infer the pressure level from file name {bfl}')
+        
+        # extract the long_name of the variable u<level>
+        ds = xr.open_dataset(fl)
+        uname = 'u' + level
+        
+        if not hasattr(ds[uname], 'long_name'):
+            raise RuntimeError(f'ERROR: variable {ds[uname]} must have a long_name attribute')
+        
+        m = re.search(r'wind at pressure\s*\=\s*(\d+\.\d+)', ds[uname].long_name)
+        if m:
+            pressure_value = float(m.group(1)) # in hPa or mbar
+        else:
+            raise RuntimeError(f'ERROR: could not infer the pressure value from {ds[uname].long_name}')
+        
+        pressures[int(level) - 1] = pressure_value
+        
+        # mask out invalid values
+        u = (np.fabs(ds[uname]) < max_wind) * ds[uname]
+
+        u = apply_cyclic_padding(u, coord_name='longitude', period=360.0)
+
+        # select values in lat_min, lat_max interval
+        u = u.interp(latitude=lat_vals, method='cubic')
+        
+        u = extract_season(u, season)
+        
+        # assume order is year, month, latitude, longitude
+        if isinstance(last_years, int) and last_years > 0:
+            # average over the last 25 years only
+            last_years = min(v.shape[0], last_years)
+            umean_level = u[-last_years:, ...].mean(dim=['latitude', 'month', 'year'])
+        else:
+            # use all the years
+            umean_level = u.mean(dim=['latitude', 'month', 'year'])
+
+        u_wind.append(umean_level)
+        
+        lon = ds.longitude.data
+        
+    return np.array(u_wind), pressures, lon
+
 
 def hadley_cell(filenames: list, season: str='djf', last_years=None,
                 lon_min: float=120., lon_max:float=280., 
@@ -557,7 +619,7 @@ def hadley_cell(filenames: list, season: str='djf', last_years=None,
     :returns an xarray DataArray with pressure levels and latitudes as axes
     """
     
-    v_wind, pressures, lat = extract_u_wind_at_pressure_levels(filenames, season=season,
+    v_wind, pressures, lat = extract_v_wind_at_pressure_levels(filenames, season=season,
                                                              last_years=last_years,
                                                              lon_min=lon_min, lon_max=lon_max)
         
