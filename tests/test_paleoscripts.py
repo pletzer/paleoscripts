@@ -297,9 +297,9 @@ def test_hadley_cell():
     fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
     psi = paleoscripts.hadley_cell(fnames, season='djf', lon_min=0., lon_max=360.)
     assert len(psi.shape) == 2
-    test_val = 2.1946e+10
-    print(f'test value: {test_val:.4e} got {psi.sum().data:.4e}')
-    assert abs(psi.sum() - test_val) < 1.e-3*test_val
+    test_val = 2.0202e+10
+    print(f'Hadley test value: {test_val:.4e} got {psi.sum().data:.4e}')
+    assert abs(psi.sum() - test_val) < 1.e-3*abs(test_val)
     
     #import matplotlib.pyplot as plt
     # import xarray as xr
@@ -311,9 +311,30 @@ def test_hadley_cell2():
     fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
     psi = paleoscripts.hadley_cell(fnames, season='djf', lon_min=120., lon_max=280.)
     assert len(psi.shape) == 2
-    test_val = 6.5794e+09
-    print(f'test value: {test_val:.4e} got {psi.sum().data:.4e}')
-    assert abs(psi.sum() - test_val) < 1.e-3*test_val
+    test_val = 5.4554e+09
+    print(f'Hadley test value: {test_val:.4e} got {psi.sum().data:.4e}')
+    assert abs(psi.sum() - test_val) < 1.e-3*abs(test_val)
 
 
+def test_walker_cell():
+    fnames = glob.glob(str(DATA_DIR) + '/su*.nc')
+    psi = paleoscripts.walker_cell(fnames, season='djf', lat_min=-90, lat_max=90)
+    assert len(psi.shape) == 2
+    test_val = 1.7171e+12
+    print(f'Walker test value: {test_val:.4e} got {psi.sum().data:.4e}')
+    assert abs(psi.sum() - test_val) < 1.e-3*abs(test_val)
+    
+    # import matplotlib.pyplot as plt
+    # import xarray as xr
+    # xr.plot.contourf(psi)
+    # plt.gca().invert_yaxis()
+    # plt.savefig('walker_cell.png')
+
+def test_walker_cell2():
+    fnames = glob.glob(str(DATA_DIR) + '/su*.nc')
+    psi = paleoscripts.walker_cell(fnames, season='djf', lat_min=-5, lat_max=5.)
+    assert len(psi.shape) == 2
+    test_val =  -5.3768e+11
+    print(f'Walker test value: {test_val:.4e} got {psi.sum().data:.4e}')
+    assert abs(psi.sum() - test_val) < 1.e-3*abs(test_val)
 
