@@ -677,7 +677,7 @@ def walker_cell(filenames: list, season: str='djf', last_years=None,
     
     u_wind, pressures, lon = extract_u_wind_at_pressure_levels(filenames, season=season,
                                                              last_years=last_years,
-                                                             lon_min=lat_min, lon_max=lat_max)
+                                                             lat_min=lat_min, lat_max=lat_max)
         
     # from the top of the atmosphere downwards
     pressures = np.flip(pressures)
