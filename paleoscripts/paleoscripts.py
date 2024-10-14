@@ -580,7 +580,8 @@ def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, 
         # mask out invalid values
         u = (np.fabs(ds[uname]) < max_wind) * ds[uname]
 
-        u = apply_cyclic_padding(u, coord_name='longitude', period=360.0)
+        # I don't think we need this here...
+        #u = apply_cyclic_padding(u, coord_name='longitude', period=360.0)
 
         # select values in lat_min, lat_max interval
         u = u.interp(latitude=lat_vals, method='cubic')
@@ -701,7 +702,6 @@ def walker_cell(filenames: list, season: str='djf', last_years=None,
     # Walker circulation, Eq(4) in https://www.mdpi.com/2073-4433/14/2/397
     for i in range(len(lon)):
         psi[:, i] = (2 * np.pi * aradius / g) * integral[:, i]
-
     
     # create the DataArray and return it
     psia = xr.DataArray(data=psi, dims=('pressure', 'longitude'), \
