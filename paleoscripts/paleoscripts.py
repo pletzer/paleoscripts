@@ -613,7 +613,7 @@ def hadley_cell(filenames: list, season: str='djf', last_years=None,
     :param season: string, eg. 'djf'
     :param last_years: last number of years (None if taking all the years)
     :param lon_min: min longitude
-    :param lan_max: max longitude
+    :param lon_max: max longitude
     :param aradius: earth's radius in m
     :param g: gravitional acceleration in m/s^2
     :returns an xarray DataArray with pressure levels and latitudes as axes
@@ -659,4 +659,59 @@ def hadley_cell(filenames: list, season: str='djf', last_years=None,
     
     return psia
 
+def walker_cell(filenames: list, season: str='djf', last_years=None,
+                lat_min: float=-5, lat_max:float=5., 
+                aradius: float=6371e3, g: float=9.8) -> xr.DataArray:
+    """
+    Compute the Walker cell
+    :param filenames: list of file name paths containing the zonal velocity for each elevation, 
+                      e.g. ["su01_hosv1.nc.gz", "su02_hosv1.nc.gz", ...]
+    :param season: string, eg. 'djf'
+    :param last_years: last number of years (None if taking all the years)
+    :param lat_min: min latitude
+    :param lat_max: max latitude
+    :param aradius: earth's radius in m
+    :param g: gravitional acceleration in m/s^2
+    :returns an xarray DataArray with pressure levels and longitudes as axes
+    """
+    
+    u_wind, pressures, lon = extract_u_wind_at_pressure_levels(filenames, season=season,
+                                                             last_years=last_years,
+                                                             lon_min=lat_min, lon_max=lat_max)
+        
+    # from the top of the atmosphere downwards
+    pressures = np.flip(pressures)
+    u_wind = np.flip(u_wind, axis=0) # CHECK that pressure is the first axis
+    
+    # compute dp from one level to the next
+    dp = pressures[1:] - pressures[:-1]
+    
+    # compute the wind at mid pressure levels
+    u_mid = 0.5*(u_wind[1:, :] + u_wind[:-1, :]) # pressure is axis 0
+    
+    # multiply wind by dp over each vertical interval
+    for i in range(len(dp)):
+        u_mid[i, :] *= dp[i]
+    
+    # integrate over levels, starting from the top and going downwards
+    integral = np.cumsum( u_mid, axis=0, dtype=float )
+    
+    psi = np.empty(integral.shape, integral.dtype)
+    
+    # Walker circulation, Eq(4) in https://www.mdpi.com/2073-4433/14/2/397
+    for i in range(len(lon)):
+        psi[:, i] = (2 * np.pi * aradius / g) * integral[:, i]
+
+    
+    # create the DataArray and return it
+    psia = xr.DataArray(data=psi, dims=('pressure', 'longitude'), \
+        coords={'pressure': pressures[1:], # pressures are boundary values
+                'longitude': lon,
+                }
+    )
+    psia.coords['pressure'].attrs['units'] = 'hPa'
+    psia.coords['longitude'].attrs['units'] = 'degree east'
+    psia.attrs['history'] = f'Produced by paleoscripts.walker_cell on {time.asctime()}'
+    
+    return psia
 
