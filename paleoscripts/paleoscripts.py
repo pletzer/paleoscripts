@@ -476,7 +476,7 @@ def plot_linefit(data_array: xr.DataArray,
     return ax
 
 
-def extract_wind_at_pressure_levels(filenames: list, season: str, last_years, lon_min, lon_max, max_wind=1000.) -> np.ndarray:
+def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, lon_min, lon_max, max_wind=1000.) -> np.ndarray:
 
     # longitude resolution
     dlon = 1.0
@@ -557,7 +557,7 @@ def hadley_cell(filenames: list, season: str='djf', last_years=None,
     :returns an xarray DataArray with pressure levels and latitudes as axes
     """
     
-    v_wind, pressures, lat = extract_wind_at_pressure_levels(filenames, season=season,
+    v_wind, pressures, lat = extract_u_wind_at_pressure_levels(filenames, season=season,
                                                              last_years=last_years,
                                                              lon_min=lon_min, lon_max=lon_max)
         
