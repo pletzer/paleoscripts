@@ -478,6 +478,10 @@ def plot_linefit(data_array: xr.DataArray,
 
 def extract_v_wind_at_pressure_levels(filenames: list, season: str, last_years, lon_min, lon_max, max_wind=1000.) -> np.ndarray:
 
+    # check that the list of files is not empty
+    if len(filenames) == 0:
+        raise RuntimeError('ERROR: empty file list')
+
     # longitude resolution
     dlon = 1.0
     nlon = int( (lon_max - lon_min) / dlon )
@@ -543,6 +547,11 @@ def extract_v_wind_at_pressure_levels(filenames: list, season: str, last_years, 
    
 
 def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, lat_min, lat_max, max_wind=1000.) -> np.ndarray:
+
+    # check that the list of files is not empty
+    if len(filenames) == 0:
+        raise RuntimeError('ERROR: empty file list')
+
 
     # latitude resolution
     dlat = 1.0
