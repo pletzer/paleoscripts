@@ -592,7 +592,7 @@ def extract_u_wind_at_pressure_levels(filenames: list, season: str, last_years, 
         # assume order is year, month, latitude, longitude
         if isinstance(last_years, int) and last_years > 0:
             # average over the last 25 years only
-            last_years = min(v.shape[0], last_years)
+            last_years = min(u.shape[0], last_years)
             umean_level = u[-last_years:, ...].mean(dim=['latitude', 'month', 'year'])
         else:
             # use all the years
