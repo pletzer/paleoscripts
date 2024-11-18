@@ -725,3 +725,23 @@ def walker_cell(filenames: list, season: str='djf', last_years=None,
     
     return psia
 
+
+def get_subtropical_high(lons: np.ndarray, lats: np.ndarray, psi_pacific: np.ndarray) -> float:
+    """
+    Given a positive function with a maximum in the domain:
+    1) compite the zonal cross-section where the array is maximum
+    2) select the longtiudes where the field is 90% of the maximum in the cross section
+    3) return the mean longitudes where the field is > 90% of maximum in the cross section
+    """
+    # find the lat index of the max
+    psi_pacific_max = np.max(psi_pacific)
+    # latitude index where field is highest
+    j_max = np.argmax(psi_pacific, axis=0)[0]
+    # all the longitude indices in the zonal cross-section where field > 0.9 max
+    i_90percent = np.where( psi_pacific[j_max, :] > 0.9*psi_pacific_max )[0]
+    # mean of the selected longitudes
+    mean_lon_max = np.mean(lons[i_90percent])
+    
+    return mean_lon_max, lats[j_max]
+    
+    

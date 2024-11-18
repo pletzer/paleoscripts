@@ -337,4 +337,17 @@ def test_walker_cell2():
     test_val =  -5.3768e+11
     print(f'Walker test value: {test_val:.4e} got {psi.sum().data:.4e}')
     assert abs(psi.sum() - test_val) < 1.e-3*abs(test_val)
+    
+    
+def test_get_subtropical_high():
+    lons = np.linspace(0., 1., 21)
+    lats = np.linspace(0., 1., 11)
+    xx, yy = np.meshgrid(lons, lats)
+    x0, y0 = 0.3, 0.7
+    zz = np.exp( - (xx-x0)**2 - (yy-y0)**2 )
+    lon_peak, lat_peak = paleoscripts.get_subtropical_high(lons, lats, zz)
+    print(f'test_get_subtropical_high peak: lon = {lon_peak} lat = {lat_peak}')
+    assert(abs(lon_peak - x0) < 1.e-10)
+    assert(abs(lat_peak - y0) < 1.e-10)
+
 
