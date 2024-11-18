@@ -350,4 +350,13 @@ def test_get_subtropical_high():
     assert(abs(lon_peak - x0) < 1.e-10)
     assert(abs(lat_peak - y0) < 1.e-10)
 
-
+def test_get_subtropical_high2():
+    lons = np.linspace(150., 270., 201)
+    lats = np.linspace(-40., -20., 101)
+    xx, yy = np.meshgrid(lons, lats)
+    x0, y0 = 200., -25.
+    zz = - (xx-x0)**2/10**2 - (yy-y0)**2/10**2
+    lon_peak, lat_peak = paleoscripts.get_subtropical_high(lons, lats, zz)
+    #print(f'test_get_subtropical_high peak: lon = {lon_peak} lat = {lat_peak}')
+    assert(abs(lon_peak - x0) < 0.1)
+    assert(abs(lat_peak - y0) < 0.1)
