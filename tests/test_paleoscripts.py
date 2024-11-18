@@ -357,17 +357,24 @@ def test_get_subtropical_high2():
     x0, y0 = 200., -25.
     zz = - (xx-x0)**2/10**2 - (yy-y0)**2/10**2
     lon_peak, lat_peak = paleoscripts.get_subtropical_high(lons, lats, zz)
-    #print(f'test_get_subtropical_high peak: lon = {lon_peak} lat = {lat_peak}')
+    #print(f'test_get_subtropical_high2 peak: lon = {lon_peak} lat = {lat_peak}')
     assert(abs(lon_peak - x0) < 0.1)
     assert(abs(lat_peak - y0) < 0.1)
 
 def test_get_subtropical_high3():
-    lons = np.linspace(150., 270., 201)
-    lats = np.linspace(-40., -20., 101)
-    xx, yy = np.meshgrid(lons, lats)
-    x0, y0 = 200., -25.
-    zz = 1.e7 * xx**2 * np.cos(np.pi*(yy - y0)/180) * np.exp( - (xx-x0)**2/10**2 - (yy-y0)**2/1**2 )
-    lon_peak, lat_peak = paleoscripts.get_subtropical_high(lons, lats, zz)
-    print(f'test_get_subtropical_high peak: lon = {lon_peak} lat = {lat_peak}')
-    assert(abs(lon_peak - x0) < 0.5)
-    assert(abs(lat_peak - y0) < 0.5)
+    # max is on crescent
+    x = np.linspace(0., 1., 101)
+    y = np.linspace(0., 1., 102)
+    xx, yy = np.meshgrid(x, y)
+    rr2 = xx*2 + yy**2
+    rr = np.sqrt(rr2)
+    tt = np.arctan2(yy, xx)
+    zz = np.exp( -(rr - 0.8)**2/0.2**2 ) * np.cos((tt - np.pi/7.)/(np.pi/3))
+    x_peak, y_peak = paleoscripts.get_subtropical_high(x, y, zz)
+    print(f'test_get_subtropical_high3 peak: x = {x_peak} y = {y_peak}')
+    # import matplotlib.pyplot as plt
+    # plt.contourf(x, y, zz, levels=np.linspace(0.98, 1.0, 101))
+    # plt.colorbar()
+    # plt.show()
+    assert(abs(x_peak - 0.307) < 0.01)
+    assert(abs(y_peak - 0.144) < 0.01)
