@@ -737,13 +737,10 @@ def get_subtropical_high(lons: np.ndarray, lats: np.ndarray, psi_pacific: np.nda
     psi_pacific_max = np.max(psi_pacific)
     # find the lat index of the max
     
-    print(f'*** psi_pacific_max = {psi_pacific_max}')
     # latitude index where field is highest
     j_max = np.argmax(psi_pacific, axis=0)[0]
-    print(f'*** j_max = {j_max}')
     # all the longitude indices in the zonal cross-section where field > 0.9 max
     i_90percent = np.where( psi_pacific[j_max, :] > psi_pacific_min + 0.9*(psi_pacific_max - psi_pacific_min) )[0]
-    print(f'*** i_90percent = {i_90percent}')
     # mean of the selected longitudes
     mean_lon_max = np.mean(lons[i_90percent])
     
