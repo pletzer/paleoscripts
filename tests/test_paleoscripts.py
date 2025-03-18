@@ -314,6 +314,14 @@ def test_hadley_cell2():
     test_val = 5.4554e+09
     print(f'Hadley test value: {test_val:.4e} got {psi.sum().data:.4e}')
     assert abs(psi.sum() - test_val) < 1.e-3*abs(test_val)
+    
+def test_hadley_cell3():
+    fnames = glob.glob(str(DATA_DIR) + '/sv*.nc')
+    psi = paleoscripts.hadley_cell(fnames, season='djf', lon_min=0., lon_max=360.)
+    psi_interp = psi.interp(coords = {'pressure': np.linspace(400, 600, 11)})
+    print(psi_interp)
+    assert(psi_interp.pressure.min() == 400)
+    assert(psi_interp.pressure.max() == 600)
 
 
 def test_walker_cell():
